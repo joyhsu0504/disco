@@ -2,7 +2,7 @@
 
 ## Ethan Perez, Florian Strub, Harm de Vries, Vincent Dumoulin, Aaron Courville
 
-This code implements a Feature-wise Linear Modulation approach to Visual Reasoning - answering multi-step questions on images. This codebase reproduces results from the AAAI 2018 paper "FiLM: Visual Reasoning with a General Conditioning Layer" (citation [here](https://github.com/ethanjperez/film#bibtex)), which extends prior work "Learning Visual Reasoning Without Strong Priors" presented at ICML's MLSLP workshop. Please see the [retrospective paper](https://ml-retrospectives.github.io/neurips2019/accepted_retrospectives/2019/film/) (citation [here](https://github.com/ethanjperez/film#retrospective-for-film)) for an honest reflection on FiLM after the work that followed, including when to (and not to) use FiLM and tips-and-tricks for effectively training a network with FiLM layers.
+This code implements a Feature-wise Linear Modulation approach to Visual Reasoning - answering multi-step questions on images. This codebase reproduces results from the AAAI 2018 paper "FiLM: Visual Reasoning with a General Conditioning Layer" (citation [here](https://github.com/ethanjperez/film#film)), which extends prior work "Learning Visual Reasoning Without Strong Priors" presented at ICML's MLSLP workshop. Please see the [retrospective paper](https://ml-retrospectives.github.io/neurips2019/accepted_retrospectives/2019/film/) (citation [here](https://github.com/ethanjperez/film#retrospective-for-film)) for an honest reflection on FiLM after the work that followed, including when to (and not to) use FiLM and tips-and-tricks for effectively training a network with FiLM layers.
 
 ### Code Outline
 
