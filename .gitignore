@@ -1,5 +1,6 @@
 # Data files
 data
+fin_scripts/batch_scripts/
 
 # Experiment files
 exp

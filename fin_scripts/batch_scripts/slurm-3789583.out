@@ -505,3 +505,4 @@ val accuracy is  0.955318977336882
 total counted in batch average is 123.61183550651955
 Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_23.pt
 23100 0.005505812732318283
+23200 0.0034346129630149136
