@@ -25,6 +25,698 @@ class FiLM(nn.Module):
     betas = betas.unsqueeze(2).unsqueeze(3).expand_as(x)
     return (gammas * x) + betas
 
+class FeaturePredictionNetwork(nn.Module):
+  def __init__(self):
+    super(FeaturePredictionNetwork, self).__init__()
+    self.num_attr = 16 * 7 * 7
+    self.conv = nn.Conv2d(1024, 16, 4, 2, 1)
+    self.flatten = nn.Flatten()
+    
+    self.color_classifier = nn.Linear(self.num_attr, 8)
+    self.shape_classifier = nn.Linear(self.num_attr, 4)
+    self.material_classifier = nn.Linear(self.num_attr, 2)
+    self.size_classifier = nn.Linear(self.num_attr, 2)
+    
+  def forward(self, x):
+    x = self.conv(x)
+    x = self.flatten(x)
+        
+    color = self.color_classifier(x)
+    shape = self.shape_classifier(x)
+    material = self.material_classifier(x)
+    size = self.size_classifier(x)
+    return color, shape, material, size
+
+class SymbolicExecutionEngine(nn.Module):
+  def __init__(self, vocab):
+    super(SymbolicExecutionEngine, self).__init__()
+    
+    num_answers = len(vocab['answer_idx_to_token'])
+    
+    self.color_readout = nn.Linear(8 + 1, num_answers)
+    self.shape_readout = nn.Linear(4 + 1, num_answers)
+    self.material_readout = nn.Linear(2 + 1, num_answers)
+    self.size_readout = nn.Linear(2 + 1, num_answers)
+    
+  def forward(self, x, question_concept, question_attr):
+    answers = []
+    for i, a in enumerate(question_attr):
+      curr_x = x[i, :]
+      curr_question_concept = question_concept[i]
+      curr_question_concept = torch.unsqueeze(curr_question_concept, dim=0)
+      if a == 0:
+        curr_x = curr_x[:8]
+        curr_x = torch.cat([torch.unsqueeze(curr_x, dim=0), torch.unsqueeze(curr_question_concept, dim=0)], dim=1)
+        answers.append(self.color_readout(curr_x))
+      if a == 1:
+        curr_x = curr_x[8:12]
+        curr_x = torch.cat([torch.unsqueeze(curr_x, dim=0), torch.unsqueeze(curr_question_concept, dim=0)], dim=1)
+        answers.append(self.shape_readout(curr_x))
+      if a == 2:
+        curr_x = curr_x[12:14]
+        curr_x = torch.cat([torch.unsqueeze(curr_x, dim=0), torch.unsqueeze(curr_question_concept, dim=0)], dim=1)
+        answers.append(self.material_readout(curr_x))
+      if a == 3:
+        curr_x = curr_x[14:]
+        curr_x = torch.cat([torch.unsqueeze(curr_x, dim=0), torch.unsqueeze(curr_question_concept, dim=0)], dim=1)
+        answers.append(self.size_readout(curr_x))
+    answers = torch.cat(answers)
+    return answers
+
+class FiLMedNetReconContrastive(nn.Module):
+  def __init__(self, vocab, feature_dim=(1024, 14, 14),
+               stem_num_layers=2,
+               stem_batchnorm=False,
+               stem_kernel_size=3,
+               stem_stride=1,
+               stem_padding=None,
+               num_modules=4,
+               module_num_layers=1,
+               module_dim=128,
+               module_residual=True,
+               module_batchnorm=False,
+               module_batchnorm_affine=False,
+               module_dropout=0,
+               module_input_proj=1,
+               module_kernel_size=3,
+               classifier_proj_dim=512,
+               classifier_downsample='maxpool2',
+               classifier_fc_layers=(1024,),
+               classifier_batchnorm=False,
+               classifier_dropout=0,
+               condition_method='bn-film',
+               condition_pattern=[],
+               use_gamma=True,
+               use_beta=True,
+               use_coords=1,
+               debug_every=float('inf'),
+               print_verbose_every=float('inf'),
+               verbose=True,
+               ):
+    super(FiLMedNetReconContrastive, self).__init__()
+
+    num_answers = len(vocab['answer_idx_to_token'])
+
+    self.stem_times = []
+    self.module_times = []
+    self.classifier_times = []
+    self.timing = False
+
+    self.num_modules = num_modules
+    self.module_num_layers = module_num_layers
+    self.module_batchnorm = module_batchnorm
+    self.module_dim = module_dim
+    self.condition_method = condition_method
+    self.use_gamma = use_gamma
+    self.use_beta = use_beta
+    self.use_coords_freq = use_coords
+    self.debug_every = debug_every
+    self.print_verbose_every = print_verbose_every
+
+    # Initialize helper variables
+    self.stem_use_coords = (stem_stride == 1) and (self.use_coords_freq > 0)
+    self.condition_pattern = condition_pattern
+    if len(condition_pattern) == 0:
+      self.condition_pattern = []
+      for i in range(self.module_num_layers * self.num_modules):
+        self.condition_pattern.append(self.condition_method != 'concat')
+    else:
+      self.condition_pattern = [i > 0 for i in self.condition_pattern]
+    self.extra_channel_freq = self.use_coords_freq
+    self.block = FiLMedResBlock
+    self.num_cond_maps = 2 * self.module_dim if self.condition_method == 'concat' else 0
+    self.fwd_count = 0
+    self.num_extra_channels = 2 if self.use_coords_freq > 0 else 0
+    if self.debug_every <= -1:
+      self.print_verbose_every = 1
+    module_H = feature_dim[1] // (stem_stride ** stem_num_layers)  # Rough calc: work for main cases
+    module_W = feature_dim[2] // (stem_stride ** stem_num_layers)  # Rough calc: work for main cases
+    self.coords = coord_map((module_H, module_W))
+    self.default_weight = Variable(torch.ones(1, 1, self.module_dim)).type(torch.cuda.FloatTensor)
+    self.default_bias = Variable(torch.zeros(1, 1, self.module_dim)).type(torch.cuda.FloatTensor)
+
+    # Initialize stem
+    stem_feature_dim = feature_dim[0] + self.stem_use_coords * self.num_extra_channels
+    self.stem = build_stem(stem_feature_dim, module_dim,
+                           num_layers=stem_num_layers, with_batchnorm=stem_batchnorm,
+                           kernel_size=stem_kernel_size, stride=stem_stride, padding=stem_padding)
+
+    # Initialize FiLMed network body
+    self.function_modules = {}
+    self.vocab = vocab
+    for fn_num in range(self.num_modules):
+      with_cond = self.condition_pattern[self.module_num_layers * fn_num:
+                                          self.module_num_layers * (fn_num + 1)]
+      mod = self.block(module_dim, with_residual=module_residual, with_batchnorm=module_batchnorm,
+                       with_cond=with_cond,
+                       dropout=module_dropout,
+                       num_extra_channels=self.num_extra_channels,
+                       extra_channel_freq=self.extra_channel_freq,
+                       with_input_proj=module_input_proj,
+                       num_cond_maps=self.num_cond_maps,
+                       kernel_size=module_kernel_size,
+                       batchnorm_affine=module_batchnorm_affine,
+                       num_layers=self.module_num_layers,
+                       condition_method=condition_method,
+                       debug_every=self.debug_every)
+      self.add_module(str(fn_num), mod)
+      self.function_modules[fn_num] = mod
+
+    # Initialize output classifier
+    self.classifier = build_classifier(module_dim + self.num_extra_channels, module_H, module_W,
+                                       num_answers, classifier_fc_layers, classifier_proj_dim,
+                                       classifier_downsample, with_batchnorm=classifier_batchnorm,
+                                       dropout=classifier_dropout)
+
+    init_modules(self.modules())
+
+  def forward(self, x, film, save_activations=False):
+    # Initialize forward pass and externally viewable activations
+    self.fwd_count += 1
+    if save_activations:
+      self.feats = None
+      self.module_outputs = []
+      self.cf_input = None
+
+    if self.debug_every <= -2:
+      pdb.set_trace()
+
+    # Prepare FiLM layers
+    gammas = None
+    betas = None
+    if self.condition_method == 'concat':
+      # Use parameters usually used to condition via FiLM instead to condition via concatenation
+      cond_params = film[:,:,:2*self.module_dim]
+      cond_maps = cond_params.unsqueeze(3).unsqueeze(4).expand(cond_params.size() + x.size()[-2:])
+    else:
+      gammas, betas = torch.split(film[:,:,:2*self.module_dim], self.module_dim, dim=-1)
+      if not self.use_gamma:
+        gammas = self.default_weight.expand_as(gammas)
+      if not self.use_beta:
+        betas = self.default_bias.expand_as(betas)
+
+    # Propagate up image features CNN
+    batch_coords = None
+    if self.use_coords_freq > 0:
+      batch_coords = self.coords.unsqueeze(0).expand(torch.Size((x.size(0), *self.coords.size())))
+    if self.stem_use_coords:
+      x = torch.cat([x, batch_coords], 1)
+    feats = self.stem(x)
+    if save_activations:
+      self.feats = feats
+    N, _, H, W = feats.size()
+    z = feats
+
+    # Propagate up the network from low-to-high numbered blocks
+    module_inputs = Variable(torch.zeros(feats.size()).unsqueeze(1).expand(
+      N, self.num_modules, self.module_dim, H, W)).type(torch.cuda.FloatTensor)
+    module_inputs[:,0] = feats
+    for fn_num in range(self.num_modules):
+      if self.condition_method == 'concat':
+        layer_output = self.function_modules[fn_num](module_inputs[:,fn_num],
+          extra_channels=batch_coords, cond_maps=cond_maps[:,fn_num])
+      else:
+        layer_output = self.function_modules[fn_num](module_inputs[:,fn_num],
+          gammas[:,fn_num,:], betas[:,fn_num,:], batch_coords)
+
+      # Store for future computation
+      if save_activations:
+        self.module_outputs.append(layer_output)
+      if fn_num == (self.num_modules - 1):
+        final_module_output = layer_output
+      else:
+        module_inputs_updated = module_inputs.clone()
+        module_inputs_updated[:,fn_num+1] = module_inputs_updated[:,fn_num+1] + layer_output
+        module_inputs = module_inputs_updated
+
+    if self.debug_every <= -2:
+      pdb.set_trace()
+
+    # Run the final classifier over the resultant, post-modulated features.
+    if self.use_coords_freq > 0:
+      final_module_output = torch.cat([final_module_output, batch_coords], 1)
+    if save_activations:
+      self.cf_input = final_module_output
+    
+    z_t = final_module_output    
+    out = self.classifier(final_module_output)
+
+    if ((self.fwd_count % self.debug_every) == 0) or (self.debug_every <= -1):
+      pdb.set_trace()
+    return out, z_t, z
+
+
+class FiLMedNetReconContrastiveIntermediate(nn.Module):
+  def __init__(self, vocab, feature_dim=(1024, 14, 14),
+               stem_num_layers=2,
+               stem_batchnorm=False,
+               stem_kernel_size=3,
+               stem_stride=1,
+               stem_padding=None,
+               num_modules=4,
+               module_num_layers=1,
+               module_dim=128,
+               module_residual=True,
+               module_batchnorm=False,
+               module_batchnorm_affine=False,
+               module_dropout=0,
+               module_input_proj=1,
+               module_kernel_size=3,
+               classifier_proj_dim=512,
+               classifier_downsample='maxpool2',
+               classifier_fc_layers=(1024,),
+               classifier_batchnorm=False,
+               classifier_dropout=0,
+               condition_method='bn-film',
+               condition_pattern=[],
+               use_gamma=True,
+               use_beta=True,
+               use_coords=1,
+               debug_every=float('inf'),
+               print_verbose_every=float('inf'),
+               verbose=True,
+               ):
+    super(FiLMedNetReconContrastiveIntermediate, self).__init__()
+
+    num_answers = len(vocab['answer_idx_to_token'])
+
+    self.stem_times = []
+    self.module_times = []
+    self.classifier_times = []
+    self.timing = False
+
+    self.num_modules = num_modules
+    self.module_num_layers = module_num_layers
+    self.module_batchnorm = module_batchnorm
+    self.module_dim = module_dim
+    self.condition_method = condition_method
+    self.use_gamma = use_gamma
+    self.use_beta = use_beta
+    self.use_coords_freq = use_coords
+    self.debug_every = debug_every
+    self.print_verbose_every = print_verbose_every
+
+    # Initialize helper variables
+    self.stem_use_coords = (stem_stride == 1) and (self.use_coords_freq > 0)
+    self.condition_pattern = condition_pattern
+    if len(condition_pattern) == 0:
+      self.condition_pattern = []
+      for i in range(self.module_num_layers * self.num_modules):
+        self.condition_pattern.append(self.condition_method != 'concat')
+    else:
+      self.condition_pattern = [i > 0 for i in self.condition_pattern]
+    self.extra_channel_freq = self.use_coords_freq
+    self.block = FiLMedResBlock
+    self.num_cond_maps = 2 * self.module_dim if self.condition_method == 'concat' else 0
+    self.fwd_count = 0
+    self.num_extra_channels = 2 if self.use_coords_freq > 0 else 0
+    if self.debug_every <= -1:
+      self.print_verbose_every = 1
+    module_H = feature_dim[1] // (stem_stride ** stem_num_layers)  # Rough calc: work for main cases
+    module_W = feature_dim[2] // (stem_stride ** stem_num_layers)  # Rough calc: work for main cases
+    
+    if feature_dim[1] == 1:
+      module_H = feature_dim[1]
+      module_W = feature_dim[2]
+    
+    self.coords = coord_map((module_H, module_W))
+    self.default_weight = Variable(torch.ones(1, 1, self.module_dim)).type(torch.cuda.FloatTensor)
+    self.default_bias = Variable(torch.zeros(1, 1, self.module_dim)).type(torch.cuda.FloatTensor)
+
+    # Initialize stem
+    stem_feature_dim = feature_dim[0] + self.stem_use_coords * self.num_extra_channels
+    self.stem = build_stem(stem_feature_dim, module_dim,
+                           num_layers=stem_num_layers, with_batchnorm=stem_batchnorm,
+                           kernel_size=stem_kernel_size, stride=stem_stride, padding=stem_padding)
+
+    # Initialize FiLMed network body
+    self.function_modules = {}
+    self.vocab = vocab
+    for fn_num in range(self.num_modules):
+      with_cond = self.condition_pattern[self.module_num_layers * fn_num:
+                                          self.module_num_layers * (fn_num + 1)]
+      mod = self.block(module_dim, with_residual=module_residual, with_batchnorm=module_batchnorm,
+                       with_cond=with_cond,
+                       dropout=module_dropout,
+                       num_extra_channels=self.num_extra_channels,
+                       extra_channel_freq=self.extra_channel_freq,
+                       with_input_proj=module_input_proj,
+                       num_cond_maps=self.num_cond_maps,
+                       kernel_size=module_kernel_size,
+                       batchnorm_affine=module_batchnorm_affine,
+                       num_layers=self.module_num_layers,
+                       condition_method=condition_method,
+                       debug_every=self.debug_every)
+      self.add_module(str(fn_num), mod)
+      self.function_modules[fn_num] = mod
+
+    # Initialize output classifier
+    self.num_attr = 16
+    self.bottleneck_classifier = build_classifier(module_dim + self.num_extra_channels, module_H, module_W,
+                                       self.num_attr, classifier_fc_layers, classifier_proj_dim,
+                                       classifier_downsample, with_batchnorm=classifier_batchnorm,
+                                       dropout=classifier_dropout)
+    self.pred_classifier = nn.Linear(self.num_attr, num_answers)
+
+    init_modules(self.modules())
+
+  def forward(self, x, film, save_activations=False):
+    # Initialize forward pass and externally viewable activations
+    self.fwd_count += 1
+    if save_activations:
+      self.feats = None
+      self.module_outputs = []
+      self.cf_input = None
+
+    if self.debug_every <= -2:
+      pdb.set_trace()
+
+    # Prepare FiLM layers
+    gammas = None
+    betas = None
+    if self.condition_method == 'concat':
+      # Use parameters usually used to condition via FiLM instead to condition via concatenation
+      cond_params = film[:,:,:2*self.module_dim]
+      cond_maps = cond_params.unsqueeze(3).unsqueeze(4).expand(cond_params.size() + x.size()[-2:])
+    else:
+      gammas, betas = torch.split(film[:,:,:2*self.module_dim], self.module_dim, dim=-1)
+      if not self.use_gamma:
+        gammas = self.default_weight.expand_as(gammas)
+      if not self.use_beta:
+        betas = self.default_bias.expand_as(betas)
+
+    # Propagate up image features CNN   
+    batch_coords = None
+    if self.use_coords_freq > 0:
+      batch_coords = self.coords.unsqueeze(0).expand(torch.Size((x.size(0), *self.coords.size())))
+            
+    if len(x.size()) == 2:
+        x = torch.unsqueeze(x, 2)
+        x = torch.unsqueeze(x, 2)
+        feats = x
+    else:
+      if self.stem_use_coords:
+        x = torch.cat([x, batch_coords], 1)
+      feats = self.stem(x)
+        
+    if save_activations:
+      self.feats = feats
+    N, _, H, W = feats.size()
+    z = feats
+
+    film_layer_outputs = []
+    # Propagate up the network from low-to-high numbered blocks
+    module_inputs = Variable(torch.zeros(feats.size()).unsqueeze(1).expand(
+      N, self.num_modules, self.module_dim, H, W)).type(torch.cuda.FloatTensor)
+    module_inputs[:,0] = feats
+    for fn_num in range(self.num_modules):
+      if self.condition_method == 'concat':
+        layer_output = self.function_modules[fn_num](module_inputs[:,fn_num],
+          extra_channels=batch_coords, cond_maps=cond_maps[:,fn_num])
+      else:
+        layer_output = self.function_modules[fn_num](module_inputs[:,fn_num],
+          gammas[:,fn_num,:], betas[:,fn_num,:], batch_coords)
+      film_layer_outputs.append(layer_output)
+
+      # Store for future computation
+      if save_activations:
+        self.module_outputs.append(layer_output)
+      if fn_num == (self.num_modules - 1):
+        final_module_output = layer_output
+      else:
+        module_inputs_updated = module_inputs.clone()
+        module_inputs_updated[:,fn_num+1] = module_inputs_updated[:,fn_num+1] + layer_output
+        module_inputs = module_inputs_updated
+
+    if self.debug_every <= -2:
+      pdb.set_trace()
+
+    # Run the final classifier over the resultant, post-modulated features.
+    if self.use_coords_freq > 0:
+      final_module_output = torch.cat([final_module_output, batch_coords], 1)
+    if save_activations:
+      self.cf_input = final_module_output
+    
+    z_t = final_module_output
+    bottleneck = self.bottleneck_classifier(z_t)
+    out = self.pred_classifier(bottleneck)
+
+    if ((self.fwd_count % self.debug_every) == 0) or (self.debug_every <= -1):
+      pdb.set_trace()
+    return out, z_t, z, bottleneck, film_layer_outputs
+
+
+class FiLMedNetRecon(nn.Module):
+  def __init__(self, vocab, feature_dim=(1024, 14, 14),
+               stem_num_layers=2,
+               stem_batchnorm=False,
+               stem_kernel_size=3,
+               stem_stride=1,
+               stem_padding=None,
+               num_modules=4,
+               module_num_layers=1,
+               module_dim=128,
+               module_residual=True,
+               module_batchnorm=False,
+               module_batchnorm_affine=False,
+               module_dropout=0,
+               module_input_proj=1,
+               module_kernel_size=3,
+               classifier_proj_dim=512,
+               classifier_downsample='maxpool2',
+               classifier_fc_layers=(1024,),
+               classifier_batchnorm=False,
+               classifier_dropout=0,
+               condition_method='bn-film',
+               condition_pattern=[],
+               use_gamma=True,
+               use_beta=True,
+               use_coords=1,
+               debug_every=float('inf'),
+               print_verbose_every=float('inf'),
+               verbose=True,
+               ):
+    super(FiLMedNetRecon, self).__init__()
+
+    num_answers = len(vocab['answer_idx_to_token'])
+
+    self.stem_times = []
+    self.module_times = []
+    self.classifier_times = []
+    self.timing = False
+
+    self.num_modules = num_modules
+    self.module_num_layers = module_num_layers
+    self.module_batchnorm = module_batchnorm
+    self.module_dim = module_dim
+    self.condition_method = condition_method
+    self.use_gamma = use_gamma
+    self.use_beta = use_beta
+    self.use_coords_freq = use_coords
+    self.debug_every = debug_every
+    self.print_verbose_every = print_verbose_every
+
+    # Initialize helper variables
+    self.stem_use_coords = (stem_stride == 1) and (self.use_coords_freq > 0)
+    self.condition_pattern = condition_pattern
+    if len(condition_pattern) == 0:
+      self.condition_pattern = []
+      for i in range(self.module_num_layers * self.num_modules):
+        self.condition_pattern.append(self.condition_method != 'concat')
+    else:
+      self.condition_pattern = [i > 0 for i in self.condition_pattern]
+    self.extra_channel_freq = self.use_coords_freq
+    self.block = FiLMedResBlock
+    self.num_cond_maps = 2 * self.module_dim if self.condition_method == 'concat' else 0
+    self.fwd_count = 0
+    self.num_extra_channels = 2 if self.use_coords_freq > 0 else 0
+    if self.debug_every <= -1:
+      self.print_verbose_every = 1
+    module_H = feature_dim[1] // (stem_stride ** stem_num_layers)  # Rough calc: work for main cases
+    module_W = feature_dim[2] // (stem_stride ** stem_num_layers)  # Rough calc: work for main cases
+    self.coords = coord_map((module_H, module_W))
+    self.default_weight = Variable(torch.ones(1, 1, self.module_dim)).type(torch.cuda.FloatTensor)
+    self.default_bias = Variable(torch.zeros(1, 1, self.module_dim)).type(torch.cuda.FloatTensor)
+
+    # Initialize stem
+    stem_feature_dim = feature_dim[0] + self.stem_use_coords * self.num_extra_channels
+    self.stem = build_stem(stem_feature_dim, module_dim,
+                           num_layers=stem_num_layers, with_batchnorm=stem_batchnorm,
+                           kernel_size=stem_kernel_size, stride=stem_stride, padding=stem_padding)
+
+    # Initialize FiLMed network body
+    self.function_modules = {}
+    self.vocab = vocab
+    for fn_num in range(self.num_modules):
+      with_cond = self.condition_pattern[self.module_num_layers * fn_num:
+                                          self.module_num_layers * (fn_num + 1)]
+      mod = self.block(module_dim, with_residual=module_residual, with_batchnorm=module_batchnorm,
+                       with_cond=with_cond,
+                       dropout=module_dropout,
+                       num_extra_channels=self.num_extra_channels,
+                       extra_channel_freq=self.extra_channel_freq,
+                       with_input_proj=module_input_proj,
+                       num_cond_maps=self.num_cond_maps,
+                       kernel_size=module_kernel_size,
+                       batchnorm_affine=module_batchnorm_affine,
+                       num_layers=self.module_num_layers,
+                       condition_method=condition_method,
+                       debug_every=self.debug_every)
+      self.add_module(str(fn_num), mod)
+      self.function_modules[fn_num] = mod
+
+    # Initialize output classifier
+    self.classifier = build_classifier(module_dim + self.num_extra_channels, module_H, module_W,
+                                       num_answers, classifier_fc_layers, classifier_proj_dim,
+                                       classifier_downsample, with_batchnorm=classifier_batchnorm,
+                                       dropout=classifier_dropout)
+
+    init_modules(self.modules())
+
+  def forward(self, x, film, save_activations=False):
+    # Initialize forward pass and externally viewable activations
+    self.fwd_count += 1
+    if save_activations:
+      self.feats = None
+      self.module_outputs = []
+      self.cf_input = None
+
+    if self.debug_every <= -2:
+      pdb.set_trace()
+
+    # Prepare FiLM layers
+    gammas = None
+    betas = None
+    if self.condition_method == 'concat':
+      # Use parameters usually used to condition via FiLM instead to condition via concatenation
+      cond_params = film[:,:,:2*self.module_dim]
+      cond_maps = cond_params.unsqueeze(3).unsqueeze(4).expand(cond_params.size() + x.size()[-2:])
+    else:
+      gammas, betas = torch.split(film[:,:,:2*self.module_dim], self.module_dim, dim=-1)
+      if not self.use_gamma:
+        gammas = self.default_weight.expand_as(gammas)
+      if not self.use_beta:
+        betas = self.default_bias.expand_as(betas)
+
+    # Propagate up image features CNN
+    batch_coords = None
+    if self.use_coords_freq > 0:
+      batch_coords = self.coords.unsqueeze(0).expand(torch.Size((x.size(0), *self.coords.size())))
+    if self.stem_use_coords:
+      x = torch.cat([x, batch_coords], 1)
+    feats = self.stem(x)
+    if save_activations:
+      self.feats = feats
+    N, _, H, W = feats.size()
+    z = feats
+
+    # Propagate up the network from low-to-high numbered blocks
+    module_inputs = Variable(torch.zeros(feats.size()).unsqueeze(1).expand(
+      N, self.num_modules, self.module_dim, H, W)).type(torch.cuda.FloatTensor)
+    module_inputs[:,0] = feats
+    for fn_num in range(self.num_modules):
+      if self.condition_method == 'concat':
+        layer_output = self.function_modules[fn_num](module_inputs[:,fn_num],
+          extra_channels=batch_coords, cond_maps=cond_maps[:,fn_num])
+      else:
+        layer_output = self.function_modules[fn_num](module_inputs[:,fn_num],
+          gammas[:,fn_num,:], betas[:,fn_num,:], batch_coords)
+
+      # Store for future computation
+      if save_activations:
+        self.module_outputs.append(layer_output)
+      if fn_num == (self.num_modules - 1):
+        final_module_output = layer_output
+      else:
+        module_inputs_updated = module_inputs.clone()
+        module_inputs_updated[:,fn_num+1] = module_inputs_updated[:,fn_num+1] + layer_output
+        module_inputs = module_inputs_updated
+
+    if self.debug_every <= -2:
+      pdb.set_trace()
+
+    # Run the final classifier over the resultant, post-modulated features.
+    if self.use_coords_freq > 0:
+      final_module_output = torch.cat([final_module_output, batch_coords], 1)
+    if save_activations:
+      self.cf_input = final_module_output
+    
+    z_t = final_module_output
+    out = self.classifier(final_module_output)
+
+    if ((self.fwd_count % self.debug_every) == 0) or (self.debug_every <= -1):
+      pdb.set_trace()
+    return out, z_t
+
+
+def weights_init(m):
+    classname = m.__class__.__name__
+    if classname.find('Conv') != -1:
+        nn.init.normal_(m.weight.data, 0.0, 0.02)
+    elif classname.find('BatchNorm') != -1:
+        nn.init.normal_(m.weight.data, 1.0, 0.02)
+        nn.init.constant_(m.bias.data, 0)
+
+
+class Generator(nn.Module):
+    def __init__(self):
+        super(Generator, self).__init__()
+        nc = 3
+        nz = 130
+        ngf = 64
+        self.main = nn.Sequential(
+            nn.ConvTranspose2d(nz, ngf * 8, 4, 1, 0, bias=False),
+            nn.BatchNorm2d(ngf * 8),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(ngf * 8, ngf * 4, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ngf * 4),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(ngf * 4, ngf * 2, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ngf * 2),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(ngf * 2, ngf, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ngf),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(ngf, nc, 4, 2, 1, bias=False),
+            nn.Tanh()
+        )
+        self.apply(weights_init)
+
+    def forward(self, input):
+        return self.main(input)
+    
+    
+class Discriminator(nn.Module):
+    def __init__(self):
+        super(Discriminator, self).__init__()
+        nc = 3
+        ndf = 64
+        self.main = nn.Sequential(
+            nn.Conv2d(nc, ndf, 4, 2, 1, bias=False),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(ndf, ndf * 2, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ndf * 2),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(ndf * 2, ndf * 4, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ndf * 4),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(ndf * 4, ndf * 8, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ndf * 8),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(ndf * 8, ndf * 8, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ndf * 8),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(ndf * 8, ndf * 8, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ndf * 8),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(ndf * 8, 1, 4, 1, 0, bias=False),
+            # nn.Sigmoid()
+        )
+        self.apply(weights_init)
+
+    def forward(self, input):
+        return self.main(input)
+
 
 class FiLMedNet(nn.Module):
   def __init__(self, vocab, feature_dim=(1024, 14, 14),
@@ -167,7 +859,7 @@ class FiLMedNet(nn.Module):
     feats = self.stem(x)
     if save_activations:
       self.feats = feats
-    N, _, H, W = feats.size()
+    N, _, H, W = feats.size()  
 
     # Propagate up the network from low-to-high numbered blocks
     module_inputs = Variable(torch.zeros(feats.size()).unsqueeze(1).expand(
@@ -199,6 +891,7 @@ class FiLMedNet(nn.Module):
       final_module_output = torch.cat([final_module_output, batch_coords], 1)
     if save_activations:
       self.cf_input = final_module_output
+    
     out = self.classifier(final_module_output)
 
     if ((self.fwd_count % self.debug_every) == 0) or (self.debug_every <= -1):

@@ -33,6 +33,8 @@ def tokenize(s, delim=' ',
   splitting on the specified delimiter. Optionally keep or remove certain
   punctuation marks and add start and end tokens.
   """
+  s = str(s)
+
   if punct_to_keep is not None:
     for p in punct_to_keep:
       s = s.replace(p, '%s%s' % (delim, p))
