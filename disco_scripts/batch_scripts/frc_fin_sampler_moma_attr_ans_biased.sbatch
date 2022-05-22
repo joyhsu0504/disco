@@ -76,7 +76,7 @@ real_dataset_dir="/viscam/u/joycj/dvr/final_datasets/cogen_multi_object/real_tes
 
 
 
-checkpoint_path="/viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t3.pt"
+checkpoint_path="/viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t004.pt"
 
 film_checkpoint_path="/viscam/u/joycj/dvr/film/checkpoint_paths/stage_1_film_moma_attr_ans_cogen_biased_005_78.pt"
 
@@ -91,7 +91,7 @@ film_checkpoint_path="/viscam/u/joycj/dvr/film/checkpoint_paths/stage_1_film_mom
 
 cd /viscam/u/joycj/dvr/fin_code/film
 python fin_scripts/train_sampler.py \
-  --entropy_threshold 0.3 \
+  --entropy_threshold 0.004 \
   --execution_engine_start_from $film_checkpoint_path \
   --program_generator_start_from $film_checkpoint_path \
   --checkpoint_path $checkpoint_path \

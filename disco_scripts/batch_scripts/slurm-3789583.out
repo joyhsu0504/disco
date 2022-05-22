@@ -1,0 +1,2058 @@
+SLURM_JOBID=3789583
+SLURM_JOB_NAME=filmreconcontrastive
+SLURM_JOB_NODELIST=viscam4
+SLURM_NNODES=1
+SLURMTMPDIR=
+working directory = /viscam/u/joycj/dvr/fin_code/film/fin_scripts/batch_scripts
+/viscam/u/joycj/dvr/fin_code/film/vr/models/layers.py:141: UserWarning: nn.init.kaiming_uniform is now deprecated in favor of nn.init.kaiming_uniform_.
+  init_params(m.weight)
+Will save checkpoints to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01.pt
+Entropy threshold 0.01
+Reading features from /viscam/u/joycj/dvr/final_datasets/cogen_multi_object_biased_005/train/features.h5
+Reading questions from  /viscam/u/joycj/dvr/final_datasets/cogen_multi_object_biased_005/questions/train/what_attr_is_the_attr_questions.h5
+Reading question data into memory
+Reading features from /viscam/u/joycj/dvr/final_datasets/cogen_multi_object/test/features.h5
+Reading questions from  /viscam/u/joycj/dvr/final_datasets/cogen_multi_object/questions/test/what_attr_is_the_attr_questions.h5
+Reading question data into memory
+Loading FiLMGen from /viscam/u/joycj/dvr/film/checkpoint_paths/stage_1_film_moma_attr_ans_cogen_biased_005_78.pt
+Here is the conditioning network:
+FiLMGen(
+  (encoder_embed): Embedding(27, 200)
+  (encoder_rnn): GRU(200, 4096, batch_first=True)
+  (decoder_linear): Linear(in_features=4096, out_features=1024, bias=True)
+)
+Loading FiLMReconContrastiveIntermediate from /viscam/u/joycj/dvr/film/checkpoint_paths/stage_1_film_moma_attr_ans_cogen_biased_005_78.pt
+Here is the conditioned network:
+FiLMedNetReconContrastiveIntermediate(
+  (stem): Sequential(
+    (0): Conv2d(1026, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (2): ReLU(inplace=True)
+  )
+  (0): FiLMedResBlock(
+    (input_proj): Conv2d(130, 128, kernel_size=(1, 1), stride=(1, 1))
+    (conv1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+    (film): FiLM()
+  )
+  (1): FiLMedResBlock(
+    (input_proj): Conv2d(130, 128, kernel_size=(1, 1), stride=(1, 1))
+    (conv1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+    (film): FiLM()
+  )
+  (2): FiLMedResBlock(
+    (input_proj): Conv2d(130, 128, kernel_size=(1, 1), stride=(1, 1))
+    (conv1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+    (film): FiLM()
+  )
+  (3): FiLMedResBlock(
+    (input_proj): Conv2d(130, 128, kernel_size=(1, 1), stride=(1, 1))
+    (conv1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=True)
+    (film): FiLM()
+  )
+  (bottleneck_classifier): Sequential(
+    (0): Conv2d(130, 512, kernel_size=(1, 1), stride=(1, 1))
+    (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (2): ReLU(inplace=True)
+    (3): MaxPool2d(kernel_size=14, stride=14, padding=0, dilation=1, ceil_mode=False)
+    (4): Flatten()
+    (5): Linear(in_features=512, out_features=1024, bias=True)
+    (6): BatchNorm1d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (7): ReLU(inplace=True)
+    (8): Linear(in_features=1024, out_features=16, bias=True)
+  )
+  (pred_classifier): Linear(in_features=16, out_features=19, bias=True)
+)
+train_loader has 49635 samples
+val_loader has 12399 samples
+real_loader has 2000 samples
+/viscam/u/joycj/dvr/final_datasets/cogen_multi_object/test/CLEVR_scenes.json
+Starting epoch 1
+/viscam/u/joycj/dvr/fin_code/film/fin_scripts/train_sampler.py:398: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  p = torch.nn.Softmax()(recon_scores)
+100 0.004985119526172639
+200 0.006014623378910074
+300 0.011172253839947643
+Starting epoch 2
+400 0.003783788615553476
+500 0.006475607704937829
+600 0.004179526791789385
+700 0.005638770843828525
+Starting epoch 3
+800 0.012421410249818337
+900 0.0063499141101621605
+1000 0.009596534027720125
+Checking training accuracy ... 
+/viscam/u/joycj/dvr/fin_code/film/fin_scripts/train_sampler.py:784: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  questions_var = Variable(questions.cuda(), volatile=True)
+/viscam/u/joycj/dvr/fin_code/film/fin_scripts/train_sampler.py:785: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  feats_var = Variable(feats.cuda(), volatile=True)
+/viscam/u/joycj/dvr/fin_code/film/fin_scripts/train_sampler.py:786: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  answers_var = Variable(feats.cuda(), volatile=True)
+train accuracy is 0.9997783821899869
+Checking validation accuracy ...
+val accuracy is  0.9445923058311154
+total counted in batch average is 108.64028056112224
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_1.pt
+1100 0.0019585500507331233
+Starting epoch 4
+1200 0.0018011793240656005
+1300 0.005227629249264254
+1400 0.0032342670237368054
+1500 0.007450124499535686
+Starting epoch 5
+1600 0.008064028955004935
+1700 0.001826120013959951
+1800 0.004135527199944597
+1900 0.016718729970659457
+Starting epoch 6
+2000 0.004552815756868753
+Checking training accuracy ... 
+train accuracy is 0.9992948524226856
+Checking validation accuracy ...
+val accuracy is  0.9372530042745383
+total counted in batch average is 117.34202607823471
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_2.pt
+2100 0.006313613574785854
+2200 0.0048709081350699224
+2300 0.003319982954737282
+Starting epoch 7
+2400 0.0026243976541089785
+2500 0.007815637892237054
+2600 0.011377070490759547
+2700 0.005454684026372183
+Starting epoch 8
+2800 0.005308853631308566
+2900 0.0048930419640041386
+3000 0.003574079648392601
+Checking training accuracy ... 
+train accuracy is 0.9995970585272489
+Checking validation accuracy ...
+val accuracy is  0.9250746027905477
+total counted in batch average is 118.14929859719439
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_3.pt
+3100 0.00305954691226651
+Starting epoch 9
+3200 0.008154764502983794
+3300 0.004082473258953754
+3400 0.010310027080115334
+Starting epoch 10
+3500 0.005438499086482784
+3600 0.006015144423374053
+3700 0.005341942972436855
+3800 0.0034017434973162676
+Starting epoch 11
+3900 0.005100551192819305
+4000 0.01108007915728051
+Checking training accuracy ... 
+train accuracy is 0.9997179409690743
+Checking validation accuracy ...
+val accuracy is  0.9355593192999435
+total counted in batch average is 119.25576730190572
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_4.pt
+4100 0.005381447568489865
+4200 0.0062779564119371575
+Starting epoch 12
+4300 0.0034275285756155726
+4400 0.002586926515545771
+4500 0.006953768911598565
+4600 0.007919260933147548
+Starting epoch 13
+4700 0.003727065225153756
+4800 0.005525569417039538
+4900 0.005243505354283857
+5000 0.0026492514688359805
+Checking training accuracy ... 
+train accuracy is 0.9996172056008865
+Checking validation accuracy ...
+val accuracy is  0.9330591176707799
+total counted in batch average is 119.98196392785572
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_5.pt
+Starting epoch 14
+5100 0.010952517528320542
+5200 0.012710213308514467
+5300 0.00395084939282669
+5400 0.00908076541512728
+Starting epoch 15
+5500 0.005321225360025492
+5600 0.002627522058836587
+5700 0.0070888139115893815
+5800 0.004586782767238471
+Starting epoch 16
+5900 0.008801577815744975
+6000 0.0056901825488817285
+Checking training accuracy ... 
+train accuracy is 0.9995366173063363
+Checking validation accuracy ...
+val accuracy is  0.9399145092346157
+total counted in batch average is 120.75225677031094
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_6.pt
+6100 0.007042162576305354
+6200 0.006082831013559172
+Starting epoch 17
+6300 0.004333014510723944
+6400 0.009277993033383957
+6500 0.005323381069381408
+Starting epoch 18
+6600 0.0008688215759513173
+6700 0.0031008254366550548
+6800 0.0077933994223970526
+6900 0.005278785869116537
+Starting epoch 19
+7000 0.0006986648656172134
+Checking training accuracy ... 
+train accuracy is 0.9997582351163493
+Checking validation accuracy ...
+val accuracy is  0.9556415839987096
+total counted in batch average is 121.2998996990973
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_7.pt
+7100 0.004833612595276213
+7200 0.009127602091396736
+7300 0.009246052683933003
+Starting epoch 20
+7400 0.00532079287987263
+7500 0.0038513464956464395
+7600 0.0028460178945109004
+7700 0.002102940016004207
+Starting epoch 21
+7800 0.00518567048914915
+7900 0.006083415026701024
+8000 0.007318984464338727
+Checking training accuracy ... 
+train accuracy is 0.9994761760854236
+Checking validation accuracy ...
+val accuracy is  0.9324945560125817
+total counted in batch average is 121.22344689378758
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_8.pt
+8100 0.004441249187668841
+Starting epoch 22
+8200 0.0017479190415732803
+8300 0.005874462898165197
+8400 0.00820979459732123
+8500 0.007826004596986203
+Starting epoch 23
+8600 0.004488893358043663
+8700 0.00441279787846829
+8800 0.0054815346185355
+8900 0.0032930032289225954
+Starting epoch 24
+9000 0.0072543108795163945
+Checking training accuracy ... 
+train accuracy is 0.9995970585272489
+Checking validation accuracy ...
+val accuracy is  0.9335430276635213
+total counted in batch average is 121.36710130391174
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_9.pt
+9100 0.005810598433342715
+9200 0.006263433339272337
+9300 0.0064338208994016745
+Starting epoch 25
+9400 0.0028467751877769786
+9500 0.007734124709355226
+9600 0.0033140126589967854
+Starting epoch 26
+9800 0.0029470973529814996
+9900 0.006259538140060123
+10000 0.005755789241535335
+Checking training accuracy ... 
+train accuracy is 0.9988314697290218
+Checking validation accuracy ...
+val accuracy is  0.9446729574965723
+total counted in batch average is 122.02404809619239
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_10.pt
+Starting epoch 27
+10100 0.006325321022154281
+10200 0.00348646799574138
+10300 0.007152340926877665
+10400 0.0021900632815462506
+Starting epoch 28
+10500 0.0068899143545943535
+10600 0.003367651660661586
+10700 0.004289768123740132
+10800 0.0028001080143944435
+Starting epoch 29
+10900 0.00455262014505037
+11000 0.002835404540623859
+Checking training accuracy ... 
+train accuracy is 0.9995164702326987
+Checking validation accuracy ...
+val accuracy is  0.9490281474312444
+total counted in batch average is 122.12437311935807
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_11.pt
+11100 0.004897765332322716
+11200 0.00482689513933507
+Starting epoch 30
+11300 0.0009274662371516174
+11400 0.001471884830303981
+11500 0.01576793440007921
+11600 0.006964578738087562
+Starting epoch 31
+11700 0.002608284861791117
+11800 0.00441307914156196
+11900 0.0031247305750164013
+12000 0.002452195851066923
+Checking training accuracy ... 
+train accuracy is 0.9995769114536114
+Checking validation accuracy ...
+val accuracy is  0.9376562626018228
+total counted in batch average is 121.72545090180361
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_12.pt
+Starting epoch 32
+12100 0.002424066906729493
+12200 0.0053016859497854
+12300 0.006238560280181665
+12400 0.010571872482909835
+Starting epoch 33
+12500 0.005341369123636751
+12600 0.003623190117516961
+12700 0.008534900587750567
+12800 0.004924081675014196
+Starting epoch 34
+12900 0.0015966094726371195
+13000 0.00741270032643172
+Checking training accuracy ... 
+train accuracy is 0.999818676337262
+Checking validation accuracy ...
+val accuracy is  0.9528187757077183
+total counted in batch average is 122.28585757271816
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_13.pt
+13100 0.0023705231116767857
+Starting epoch 35
+13200 0.0011878979339983652
+13300 0.006665291704686774
+13400 0.0008414254556335576
+13500 0.001191728115695222
+Starting epoch 36
+13600 0.005310140964325298
+13700 0.004680289012774152
+13800 0.0031499815325674164
+13900 0.0017829033830414026
+Starting epoch 37
+14000 0.006783936074589923
+Checking training accuracy ... 
+train accuracy is 0.9979651455626071
+Checking validation accuracy ...
+val accuracy is  0.9470925074602791
+total counted in batch average is 122.6469408224674
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_14.pt
+14100 0.008094409736706096
+14200 0.0012192237142726625
+14300 0.009302276363921622
+Starting epoch 38
+14400 0.0028456612142002857
+14500 0.008807391226527118
+14600 0.004647181611060636
+14700 0.0047201445889016825
+Starting epoch 39
+14800 0.0013983985165329726
+14900 0.003645320928267298
+15000 0.0024094422323116538
+Checking training accuracy ... 
+train accuracy is 0.9997380880427118
+Checking validation accuracy ...
+val accuracy is  0.956770707315106
+total counted in batch average is 122.56312625250501
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_15.pt
+15100 0.007449741592916388
+Starting epoch 40
+15200 0.0019350813490084896
+15300 0.007165490037662392
+15400 0.0016147833779884934
+15500 0.0028635231310442655
+Starting epoch 41
+15600 0.0015507430737480277
+15700 0.0029681988121930338
+15800 0.002892619744859034
+15900 0.005610405407280421
+Starting epoch 42
+16000 0.002479433603003842
+Checking training accuracy ... 
+train accuracy is 0.9997582351163493
+Checking validation accuracy ...
+val accuracy is  0.9440277441729171
+total counted in batch average is 122.94884653961886
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_16.pt
+16100 0.0023366562404104427
+16200 0.00396710272631774
+Starting epoch 43
+16300 0.0007554085727509807
+16400 0.006253775165731269
+16500 0.007216537837098802
+16600 0.004544767235600357
+Starting epoch 44
+16700 0.0047321549098266556
+16800 1.5352091104176013e-05
+16900 0.007193931036602066
+17000 0.005010727164056543
+Checking training accuracy ... 
+train accuracy is 0.9975219099425808
+Checking validation accuracy ...
+val accuracy is  0.9377369142672796
+total counted in batch average is 123.27054108216433
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_17.pt
+Starting epoch 45
+17100 0.001008653506389524
+17200 0.006303922619327563
+17300 0.005151564562396851
+17400 0.00035525053463919434
+Starting epoch 46
+17500 0.0013367444014112733
+17600 0.006528280406217554
+17700 0.003498952863487903
+17800 0.0038206755867485178
+Starting epoch 47
+17900 0.00644455132686728
+18000 0.022964776363357187
+Checking training accuracy ... 
+train accuracy is 0.9997985292636244
+Checking validation accuracy ...
+val accuracy is  0.957496572304218
+total counted in batch average is 122.85656970912738
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_18.pt
+18100 0.0037778795221839146
+18200 0.0010212966452468708
+Starting epoch 48
+18300 0.006380754457019295
+18400 0.001987774144088672
+18500 0.001296834952109206
+18600 0.002290813235043567
+Starting epoch 49
+18700 0.0029700847375892956
+18800 0.005079470316244738
+18900 0.003877845602701755
+19000 0.0067065015316551445
+Checking training accuracy ... 
+train accuracy is 0.9997380880427118
+Checking validation accuracy ...
+val accuracy is  0.9536252923622873
+total counted in batch average is 122.79158316633267
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_19.pt
+Starting epoch 50
+19100 0.008504488782238157
+19200 0.004139291754116519
+19300 0.00033951901033840823
+Starting epoch 51
+19500 0.004186465677673901
+19600 0.0017511319176195471
+19700 0.006022923357735648
+Starting epoch 52
+19800 0.004900292478574498
+19900 0.0013997828509083243
+20000 0.00821996826392995
+Checking training accuracy ... 
+train accuracy is 0.9995567643799738
+Checking validation accuracy ...
+val accuracy is  0.9557222356641665
+total counted in batch average is 123.2457372116349
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_20.pt
+20100 0.004782670440284265
+Starting epoch 53
+20200 0.0028759144001965654
+20300 0.0012386671100800895
+20400 0.006324661614965559
+20500 0.005215349118079241
+Starting epoch 54
+20600 0.004592694849483519
+20700 0.00624187187047335
+20800 0.0007927862709928979
+20900 0.002282120988865286
+Starting epoch 55
+21000 0.0011631303836830975
+Checking training accuracy ... 
+train accuracy is 0.9995567643799738
+Checking validation accuracy ...
+val accuracy is  0.9516896523913219
+total counted in batch average is 123.36108324974924
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_21.pt
+21100 0.0035117869062366316
+21200 0.0033760631267571494
+21300 0.003457850781790209
+Starting epoch 56
+21400 0.0027472441955768536
+21500 0.0025742924628949304
+21600 0.0031595642865102015
+21700 0.0019717497656724548
+Starting epoch 57
+21800 0.0025370130641323473
+21900 0.008965965710998093
+22000 0.006140749019347418
+Checking training accuracy ... 
+train accuracy is 0.9996977938954367
+Checking validation accuracy ...
+val accuracy is  0.9519316073876926
+total counted in batch average is 123.43286573146293
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_22.pt
+22100 0.004149554828616988
+Starting epoch 58
+22200 0.0028501985758174154
+22300 0.0025625916828962538
+22400 0.0012410666454258745
+22500 0.00766535373249801
+Starting epoch 59
+22600 0.007441831759364094
+22700 0.0012159584886256526
+22800 0.002842992103121569
+Starting epoch 60
+22900 0.0033182901054421097
+23000 0.0038039240973963538
+Checking training accuracy ... 
+train accuracy is 0.9995769114536114
+Checking validation accuracy ...
+val accuracy is  0.955318977336882
+total counted in batch average is 123.61183550651955
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_23.pt
+23100 0.005505812732318283
+23200 0.0034346129630149136
+Starting epoch 61
+23300 0.004728015525063678
+23400 0.0011121012090305603
+23500 0.0069627196815002425
+23600 0.0011643520665111078
+Starting epoch 62
+23700 0.0010085145469629986
+23800 0.00416604747693428
+23900 0.0029578698495653865
+24000 0.002041400865025742
+Checking training accuracy ... 
+train accuracy is 0.999818676337262
+Checking validation accuracy ...
+val accuracy is  0.9433018791838051
+total counted in batch average is 123.53907815631263
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_24.pt
+Starting epoch 63
+24100 0.004158512030531247
+24200 0.0032684949073915493
+24300 0.005161367477303289
+24400 0.005787841060036649
+Starting epoch 64
+24500 0.0012902951816545038
+24600 0.005454865578505767
+24700 0.001806569005955615
+24800 0.0032004912068951995
+Starting epoch 65
+24900 0.003943086368636459
+25000 0.0067180889882774274
+Checking training accuracy ... 
+train accuracy is 0.999637352674524
+Checking validation accuracy ...
+val accuracy is  0.9524961690458909
+total counted in batch average is 123.84854563691073
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_25.pt
+25100 0.0037014234390237953
+25200 0.005865969782610716
+Starting epoch 66
+25300 0.002368056784808814
+25400 0.004878552189508148
+25500 0.002107407979272362
+25600 0.0004952206242199625
+Starting epoch 67
+25700 0.005053804984844464
+25800 0.0038742300387951435
+25900 0.003568501899834808
+Starting epoch 68
+26000 0.0028924992781180735
+Checking training accuracy ... 
+train accuracy is 0.9996574997481615
+Checking validation accuracy ...
+val accuracy is  0.9446729574965723
+total counted in batch average is 123.67803410230692
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_26.pt
+26100 0.0022309567908616558
+26200 0.006506521477864139
+26300 0.006266852679352865
+Starting epoch 69
+26400 0.00350282791235178
+26500 0.0029220440328938347
+26600 0.005273467365831909
+26700 0.003464159195089627
+Starting epoch 70
+26800 0.0017941921703102481
+26900 0.004609569670067778
+27000 0.000713709147974455
+Checking training accuracy ... 
+train accuracy is 0.9999194117054497
+Checking validation accuracy ...
+val accuracy is  0.938220824260021
+total counted in batch average is 123.90180360721443
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_27.pt
+27100 0.004462728782867334
+Starting epoch 71
+27200 0.002681958831088169
+27300 0.008211809478742768
+27400 0.004926553622209209
+27500 0.0012197202856231693
+Starting epoch 72
+27600 0.003843919742356772
+27700 0.003176200154726816
+27800 0.00622954727213542
+27900 0.0009764643052797195
+Starting epoch 73
+28000 0.0029640926601075214
+Checking training accuracy ... 
+train accuracy is 0.9992948524226856
+Checking validation accuracy ...
+val accuracy is  0.9543511573513993
+total counted in batch average is 123.98495486459377
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_28.pt
+28100 0.004578156574382923
+28200 0.004334177246592179
+28300 0.005370307951552
+Starting epoch 74
+28400 0.0010138224875912338
+28500 0.004171898408688421
+28600 0.0038426738971312547
+28700 0.005642971763831155
+Starting epoch 75
+28800 0.001848002042087425
+28900 0.0001330203455633694
+29000 0.0008258007676673279
+Checking training accuracy ... 
+train accuracy is 0.999637352674524
+Checking validation accuracy ...
+val accuracy is  0.9483022824421324
+total counted in batch average is 124.22044088176352
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_29.pt
+Starting epoch 76
+29200 0.01026284661251376
+29300 0.0038168103265857757
+29400 0.008118717764024308
+Starting epoch 77
+29500 0.0028945848100893736
+29600 0.007151509478970508
+29700 0.003264571668010335
+29800 0.010209793062411689
+Starting epoch 78
+29900 0.003279547129840227
+30000 0.0006656537222347281
+Checking training accuracy ... 
+train accuracy is 0.9996172056008865
+Checking validation accuracy ...
+val accuracy is  0.9516896523913219
+total counted in batch average is 123.7913741223671
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_30.pt
+30100 0.00257405039828301
+30200 0.0053767165030904705
+Starting epoch 79
+30300 0.0008955741332348538
+30400 0.001949030104830245
+30500 0.0011870777737564998
+30600 0.011083168469897224
+Starting epoch 80
+30700 0.006819779135742796
+30800 0.0021165955857896314
+30900 2.020072150527186e-05
+31000 0.004191200450156451
+Checking training accuracy ... 
+train accuracy is 0.9999395587790874
+Checking validation accuracy ...
+val accuracy is  0.9479796757803048
+total counted in batch average is 123.69739478957916
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_31.pt
+Starting epoch 81
+31100 0.004608317830754369
+31200 0.002635433580612345
+31300 0.005055052769619583
+31400 0.0012896276557371206
+Starting epoch 82
+31500 0.0013352857829244341
+31600 0.0028902739749640327
+31700 0.0034111256551908266
+31800 0.002959651748840309
+Starting epoch 83
+31900 0.004710495545308963
+32000 0.0051744023258126284
+Checking training accuracy ... 
+train accuracy is 0.9998388234108996
+Checking validation accuracy ...
+val accuracy is  0.9437857891765465
+total counted in batch average is 123.57271815446339
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_32.pt
+32100 0.0017524061151714377
+32200 0.005922687322153546
+Starting epoch 84
+32300 0.0001167537528761442
+32400 0.0003721144320132719
+32500 0.005978138885910142
+Starting epoch 85
+32600 0.0022917149545842053
+32700 0.002560913257171733
+32800 1.7685762790778937e-05
+32900 0.0029750530035925825
+Starting epoch 86
+33000 0.0006659703844716497
+Checking training accuracy ... 
+train accuracy is 0.9996776468217992
+Checking validation accuracy ...
+val accuracy is  0.9522542140495202
+total counted in batch average is 124.0481444332999
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_33.pt
+33100 0.00983047622038065
+33200 0.004545661154573455
+33300 0.0055508811931211455
+Starting epoch 87
+33400 0.00456436568767841
+33500 0.0026357590267198703
+33600 0.007783459768336729
+33700 0.005821462894841844
+Starting epoch 88
+33800 0.0034217519067896397
+33900 0.0016809358744519043
+34000 0.00017242772713360832
+Checking training accuracy ... 
+train accuracy is 0.9998589704845371
+Checking validation accuracy ...
+val accuracy is  0.9378982175981934
+total counted in batch average is 123.78557114228457
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_34.pt
+34100 0.0026684871296886654
+Starting epoch 89
+34200 0.003773478064406569
+34300 0.0069984759348007495
+34400 0.006096907289191667
+34500 0.006394534472964773
+Starting epoch 90
+34600 0.0061614501983710546
+34700 0.003053031400435092
+34800 0.005396962721671332
+34900 0.004845854975312187
+Starting epoch 91
+35000 0.009976405697504171
+Checking training accuracy ... 
+train accuracy is 0.9998992646318122
+Checking validation accuracy ...
+val accuracy is  0.9511250907331237
+total counted in batch average is 123.9618856569709
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_35.pt
+35100 0.0004175683149368714
+35200 0.0018842088630371934
+35300 0.0012559158292484995
+Starting epoch 92
+35400 0.0024606441787476275
+35500 0.0014969433912605545
+35600 0.014324981804167263
+Starting epoch 93
+35700 0.003539009948958655
+35800 0.0006434235786076637
+35900 0.002010124125967905
+36000 6.271886136310911e-07
+Checking training accuracy ... 
+train accuracy is 0.9997582351163493
+Checking validation accuracy ...
+val accuracy is  0.9438664408420034
+total counted in batch average is 123.82565130260521
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_36.pt
+Starting epoch 94
+36100 0.0022319754403081404
+36200 0.005797531439280077
+36300 0.001168786310697062
+36400 0.008280701892670043
+Starting epoch 95
+36500 0.006609882454812368
+36600 0.003141129755318405
+36700 0.00398048476962788
+36800 0.0018248478792249423
+Starting epoch 96
+36900 0.001312502407593783
+37000 0.0035959864585038393
+Checking training accuracy ... 
+train accuracy is 0.9998992646318122
+Checking validation accuracy ...
+val accuracy is  0.9341882409871763
+total counted in batch average is 123.6469408224674
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_37.pt
+37100 0.0063334107110694085
+37200 0.001542645537488971
+Starting epoch 97
+37300 0.005417919350696847
+37400 0.0038465209904043896
+37500 0.0008910029428970445
+37600 0.0032128558646014127
+Starting epoch 98
+37700 1.4290900237656779e-06
+37800 0.0027505045783077185
+37900 0.002649025771013691
+38000 0.0023280942486045442
+Checking training accuracy ... 
+train accuracy is 0.9995769114536114
+Checking validation accuracy ...
+val accuracy is  0.9534639890313735
+total counted in batch average is 123.79659318637275
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_38.pt
+Starting epoch 99
+38100 0.00830609855965348
+38200 0.0028815401380497805
+38300 0.0015156133287677954
+38400 0.0016431925163475024
+Starting epoch 100
+38500 0.003605989492864125
+38600 0.006679134750140827
+38700 0.000249860687488197
+Starting epoch 101
+38900 0.007410858271719036
+39000 0.002780185951633195
+Checking training accuracy ... 
+train accuracy is 0.9996172056008865
+Checking validation accuracy ...
+val accuracy is  0.9455601258165981
+total counted in batch average is 124.31293881644935
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_39.pt
+39100 0.0070138059251333386
+Starting epoch 102
+39200 0.003988707516884615
+39300 1.4461085417027397e-05
+39400 0.004465339638796646
+39500 2.1952120126123021e-07
+Starting epoch 103
+39600 0.00892561611679537
+39700 0.007896607874320963
+39800 0.004138948550922557
+39900 0.024447174317681765
+Starting epoch 104
+40000 0.004549680770748513
+Checking training accuracy ... 
+train accuracy is 0.9999597058527249
+Checking validation accuracy ...
+val accuracy is  0.9437051375110896
+total counted in batch average is 123.72617853560682
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_40.pt
+40100 0.00035533980215322615
+40200 0.0005759939958915217
+40300 0.0007609679858296891
+Starting epoch 105
+40400 0.00599927393757357
+40500 0.0005677331665402341
+40600 0.001452466134536119
+40700 0.0032509454462999517
+Starting epoch 106
+40800 0.001911677224042081
+40900 0.0010601780582446929
+41000 7.610872554739801e-05
+Checking training accuracy ... 
+train accuracy is 0.999818676337262
+Checking validation accuracy ...
+val accuracy is  0.950076619082184
+total counted in batch average is 124.42685370741484
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_41.pt
+41100 0.0008494125934476876
+Starting epoch 107
+41200 0.0020845569157048162
+41300 0.0055780153722839575
+41400 0.0035033560607171284
+41500 0.008539852249849026
+Starting epoch 108
+41600 0.00529439156686374
+41700 0.002591800373445813
+41800 0.005183469861802268
+41900 0.004301912156519844
+Starting epoch 109
+42000 0.0002681664752667312
+Checking training accuracy ... 
+train accuracy is 0.9996574997481615
+Checking validation accuracy ...
+val accuracy is  0.9208000645213323
+total counted in batch average is 124.35105315947844
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_42.pt
+42100 0.002257023230777948
+42200 0.006991585468774593
+Starting epoch 110
+42300 0.0028560514974535958
+42400 0.001855113615745428
+42500 0.0013708056476640995
+42600 0.006437438146317713
+Starting epoch 111
+42700 0.002690435550002715
+42800 0.011905053855173733
+42900 0.004099350247792006
+43000 0.007643447550207506
+Checking training accuracy ... 
+train accuracy is 0.9999597058527249
+Checking validation accuracy ...
+val accuracy is  0.9410436325510122
+total counted in batch average is 124.00901803607215
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_43.pt
+Starting epoch 112
+43100 0.004984745040068551
+43200 0.0021211244306247657
+43300 0.003612726407127751
+43400 0.004745460681239623
+Starting epoch 113
+43500 0.004087942607408499
+43600 2.797305093312774e-06
+43700 0.004921360369045105
+43800 0.01197472223517118
+Starting epoch 114
+43900 0.0018640651414058285
+44000 0.00143395147941355
+Checking training accuracy ... 
+train accuracy is 0.9997380880427118
+Checking validation accuracy ...
+val accuracy is  0.9516896523913219
+total counted in batch average is 123.9679037111334
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_44.pt
+44100 0.0017834652817287067
+44200 0.0015516349025875497
+Starting epoch 115
+44300 0.005342507669795128
+44400 0.002114987150542967
+44500 0.0019078187162531602
+44600 0.0008776062314294431
+Starting epoch 116
+44700 0.0010257806826935666
+44800 0.0011280992981749915
+44900 0.0024968048148957984
+45000 1.3099160695417833e-06
+Checking training accuracy ... 
+train accuracy is 0.9998388234108996
+Checking validation accuracy ...
+val accuracy is  0.9513670457294943
+total counted in batch average is 124.30360721442885
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_45.pt
+Starting epoch 117
+45100 0.0036225334838303324
+45200 0.007785554455254768
+45300 0.004017847750141717
+Starting epoch 118
+45400 0.002415732231893227
+45500 0.00030988134021761203
+45600 0.005880963943009179
+45700 0.0019463421903280775
+Starting epoch 119
+45800 0.002056974499544948
+45900 0.001987343929080161
+46000 0.009416712221555584
+Checking training accuracy ... 
+train accuracy is 0.9996574997481615
+Checking validation accuracy ...
+val accuracy is  0.9485442374385031
+total counted in batch average is 124.37512537612838
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_46.pt
+46100 0.0013787295102987145
+Starting epoch 120
+46200 0.002086122650214959
+46300 0.003509658043953154
+46400 0.002597764117215119
+46500 0.002052349738666903
+Starting epoch 121
+46600 0.005888799371359308
+46700 0.003522592341689143
+46800 0.002234500974407829
+46900 0.004374080022542268
+Starting epoch 122
+47000 0.004280398194390107
+Checking training accuracy ... 
+train accuracy is 0.9997380880427118
+Checking validation accuracy ...
+val accuracy is  0.9545124606823131
+total counted in batch average is 124.20561685055165
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_47.pt
+47100 0.00424248598101306
+47200 0.001680317019419661
+47300 0.006162796113560989
+Starting epoch 123
+47400 0.0016597992243588134
+47500 0.0013121705829513709
+47600 0.03343044443359624
+47700 0.0033996730388263187
+Starting epoch 124
+47800 0.0017592034137301137
+47900 0.002950654619306785
+48000 3.936316638530446e-05
+Checking training accuracy ... 
+train accuracy is 0.9998388234108996
+Checking validation accuracy ...
+val accuracy is  0.9543511573513993
+total counted in batch average is 123.71042084168337
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_48.pt
+48100 0.00805274145974965
+Starting epoch 125
+48200 0.00207383494026385
+48300 0.001977317409156475
+48400 0.00021921263858394325
+Starting epoch 126
+48600 0.0024754537193247906
+48700 0.0014030268463252876
+48800 0.010721064903169385
+Starting epoch 127
+48900 0.006151667720398573
+49000 0.004273073200638666
+Checking training accuracy ... 
+train accuracy is 0.9998992646318122
+Checking validation accuracy ...
+val accuracy is  0.9543511573513993
+total counted in batch average is 123.5135406218656
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_49.pt
+49100 0.03281453138858093
+49200 0.04000407888799861
+Starting epoch 128
+49300 0.005319270741163186
+49400 0.00019779401682569863
+49500 4.958959545749875e-05
+49600 0.0007418749045943385
+Starting epoch 129
+49700 0.00019399599966562152
+49800 0.0031361075742155366
+49900 0.0019735165199884987
+50000 0.0007227616150994737
+Checking training accuracy ... 
+train accuracy is 0.9999395587790874
+Checking validation accuracy ...
+val accuracy is  0.9571739656423905
+total counted in batch average is 123.09719438877755
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_50.pt
+Starting epoch 130
+50100 0.0011393990705947194
+50200 0.0017592329909696769
+50300 0.00017638622662930926
+50400 0.0006043353200798318
+Starting epoch 131
+50500 0.0005291664981276889
+50600 0.0011677800608911682
+50700 0.0032009171767634157
+50800 0.0016891591908876613
+Starting epoch 132
+50900 1.135977724974424e-05
+51000 0.009217005653921091
+Checking training accuracy ... 
+train accuracy is 0.9941774957187468
+Checking validation accuracy ...
+val accuracy is  0.9376562626018228
+total counted in batch average is 124.50351053159478
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_51.pt
+51100 0.011466495259822882
+51200 0.08723225282546732
+Starting epoch 133
+51300 0.16225713874590825
+51400 0.01383140588881588
+51500 0.004126525526042002
+51600 0.0032678528843538856
+Starting epoch 134
+51700 0.0017997418961681433
+51800 0.005511883223760534
+51900 0.001369474829842492
+Starting epoch 135
+52000 0.0006851349013005104
+Checking training accuracy ... 
+train accuracy is 0.9996574997481615
+Checking validation accuracy ...
+val accuracy is  0.9303169610452456
+total counted in batch average is 119.30391173520562
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_52.pt
+52100 0.00014243253782938003
+52200 0.0012191222932500833
+52300 0.002134333688704404
+Starting epoch 136
+52400 0.0008047744080781838
+52500 0.0002870139458430976
+52600 0.002391462193576119
+52700 0.006082694101291566
+Starting epoch 137
+52800 0.007426207091835757
+52900 0.0025346090312113757
+53000 7.446471251613573e-05
+Checking training accuracy ... 
+train accuracy is 0.9999194117054497
+Checking validation accuracy ...
+val accuracy is  0.9304782643761593
+total counted in batch average is 123.09318637274549
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_53.pt
+53100 0.005958725079483756
+Starting epoch 138
+53200 0.0038674003033741713
+53300 0.0021646808191508903
+53400 0.0027445568998310443
+53500 0.00012671647355322557
+Starting epoch 139
+53600 0.0007885591124664638
+53700 0.0014088421594112522
+53800 0.007213454201232634
+53900 0.00535941805260697
+Starting epoch 140
+54000 0.0023759797010469465
+Checking training accuracy ... 
+train accuracy is 0.9998992646318122
+Checking validation accuracy ...
+val accuracy is  0.9459633841438826
+total counted in batch average is 123.41925777331996
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_54.pt
+54100 0.0011235741956634715
+54200 0.001248500389355629
+54300 0.002150786263427686
+Starting epoch 141
+54400 0.0038089953092866114
+54500 3.0987389285341837e-06
+54600 0.003119761948420716
+54700 0.005784292691969594
+Starting epoch 142
+54800 0.008689752048287062
+54900 0.006878788460298373
+55000 0.002257507942452013
+Checking training accuracy ... 
+train accuracy is 0.9999395587790874
+Checking validation accuracy ...
+val accuracy is  0.9391886442455036
+total counted in batch average is 123.77855711422846
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_55.pt
+Starting epoch 143
+55100 0.004550551001800705
+55200 0.000523647339153957
+55300 0.0012596114416040093
+55400 0.01022051932438639
+Starting epoch 144
+55500 0.003016947223331984
+55600 0.004300395035626289
+55700 0.005772343599515659
+55800 3.719883740672003e-05
+Starting epoch 145
+55900 0.004144909740604493
+56000 0.0013256533874623955
+Checking training accuracy ... 
+train accuracy is 0.9993955877908733
+Checking validation accuracy ...
+val accuracy is  0.9246713444632632
+total counted in batch average is 124.06018054162487
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_56.pt
+56100 0.009947122479706774
+56200 0.004226620520149579
+Starting epoch 146
+56300 0.003022416458491639
+56400 0.0005122957429998687
+56500 0.001457146512790055
+56600 0.0017330460326853258
+Starting epoch 147
+56700 0.0005211713992519174
+56800 0.001278242513748007
+56900 0.003085515323815396
+57000 0.0026633439197128184
+Checking training accuracy ... 
+train accuracy is 0.9997783821899869
+Checking validation accuracy ...
+val accuracy is  0.9445116541656585
+total counted in batch average is 124.04208416833667
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_57.pt
+Starting epoch 148
+57100 0.19619651501929752
+57200 0.0037276849282516906
+57300 0.001419781159042386
+57400 0.0007901847996085954
+Starting epoch 149
+57500 0.0025604637793881476
+57600 0.0038311416337748526
+57700 0.04732647479384263
+57800 0.04487451061256025
+Starting epoch 150
+57900 0.005416545233642749
+58000 0.0018168605335852318
+Checking training accuracy ... 
+train accuracy is 0.9998589704845371
+Checking validation accuracy ...
+val accuracy is  0.9145898862811517
+total counted in batch average is 121.71514543630893
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_58.pt
+58100 0.0037043548517091507
+Starting epoch 151
+58300 0.005612737865098096
+58400 3.7929504779232737e-06
+58500 7.950195131296578e-05
+Starting epoch 152
+58600 0.005133182416710212
+58700 0.0004125183116785458
+58800 0.0033570497995328652
+58900 0.0007098003849107104
+Starting epoch 153
+59000 0.0007778758932216446
+Checking training accuracy ... 
+train accuracy is 0.9995970585272489
+Checking validation accuracy ...
+val accuracy is  0.9387853859182193
+total counted in batch average is 123.00300902708125
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_59.pt
+59100 0.00036255951478128876
+59200 0.007610453658295253
+59300 0.0023801949730129376
+Starting epoch 154
+59400 0.0028545414564926054
+59500 3.7433711124829073e-06
+59600 0.00041450556222411114
+59700 0.0027465112133106028
+Starting epoch 155
+59800 0.0009009717335805712
+59900 0.0001416346553620662
+60000 0.0038371641351371945
+Checking training accuracy ... 
+train accuracy is 0.9998589704845371
+Checking validation accuracy ...
+val accuracy is  0.9358819259617711
+total counted in batch average is 124.31963927855712
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_60.pt
+60100 0.00800466603111864
+Starting epoch 156
+60200 0.01582200323102306
+60300 0.004590028007895621
+60400 0.0011904499286320546
+60500 0.0030710605671227464
+Starting epoch 157
+60600 0.00017651159727620545
+60700 5.175931206691908e-05
+60800 0.0012120789993982928
+60900 0.0009847700344479992
+Starting epoch 158
+61000 0.00026729848810606914
+Checking training accuracy ... 
+train accuracy is 0.9998791175581747
+Checking validation accuracy ...
+val accuracy is  0.9518509557222357
+total counted in batch average is 124.03911735205617
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_61.pt
+61100 0.0016815035850811988
+61200 0.005461530415682119
+61300 0.00481122317551537
+Starting epoch 159
+61400 0.004060717631497877
+61500 0.011890926787849193
+61600 0.0007190102712302138
+Starting epoch 160
+61700 0.0026302208460714065
+61800 0.0008463942586630146
+61900 0.005425316089477093
+62000 0.0021835343351805105
+Checking training accuracy ... 
+train accuracy is 0.9998992646318122
+Checking validation accuracy ...
+val accuracy is  0.939672554238245
+total counted in batch average is 124.4629258517034
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_62.pt
+Starting epoch 161
+62100 0.0017073374670341286
+62200 0.01433953203353332
+62300 0.006820644232700701
+62400 0.002181489015646213
+Starting epoch 162
+62500 0.0016698803914653637
+62600 0.002996921214880648
+62700 0.0025599706499276165
+62800 0.0030265594943557094
+Starting epoch 163
+62900 0.0030553867409162873
+63000 0.0007456484125626761
+Checking training accuracy ... 
+train accuracy is 0.9995164702326987
+Checking validation accuracy ...
+val accuracy is  0.9341882409871763
+total counted in batch average is 124.31895687061184
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_63.pt
+63100 0.002032742907242693
+63200 0.0011179653013942208
+Starting epoch 164
+63300 0.003672738247370404
+63400 0.0009546677525163738
+63500 0.005018062539938346
+63600 0.0024979616785164734
+Starting epoch 165
+63700 0.003129775972426869
+63800 0.0035008178617443484
+63900 0.001958135452012186
+64000 0.0030541485775196554
+Checking training accuracy ... 
+train accuracy is 0.999818676337262
+Checking validation accuracy ...
+val accuracy is  0.931526736027099
+total counted in batch average is 124.56813627254509
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_64.pt
+Starting epoch 166
+64100 0.0009856170155911914
+64200 0.002361727482123246
+64300 0.0032798302040379724
+64400 0.0020752419740910064
+Starting epoch 167
+64500 0.002977468416419402
+64600 0.001046225881409818
+64700 0.0017459149689866749
+Starting epoch 168
+64800 0.020783826517742025
+64900 0.0005475083635990518
+65000 2.494918343008079e-05
+Checking training accuracy ... 
+train accuracy is 0.9998388234108996
+Checking validation accuracy ...
+val accuracy is  0.9228970078232116
+total counted in batch average is 124.17251755265798
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_65.pt
+65100 0.001280853515938908
+Starting epoch 169
+65200 0.006563122789596862
+65300 0.0017952952212752949
+65400 0.0019340336900906174
+65500 9.678175155760638e-06
+Starting epoch 170
+65600 0.0008339549475441343
+65700 0.0006072374786654943
+65800 0.004007949871410388
+65900 0.0006751562076367368
+Starting epoch 171
+66000 0.0052895318080487756
+Checking training accuracy ... 
+train accuracy is 0.9993754407172358
+Checking validation accuracy ...
+val accuracy is  0.9332204210016937
+total counted in batch average is 124.26479438314945
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_66.pt
+66100 0.0025784037291758056
+66200 0.0009271092708544659
+66300 0.0030228234113126255
+Starting epoch 172
+66400 0.004850404337297379
+66500 0.019422489642345494
+66600 0.0013364524498124042
+66700 0.004336561285523476
+Starting epoch 173
+66800 2.5772629114254598e-05
+66900 0.0005280980041758488
+67000 1.1805751259059693e-05
+Checking training accuracy ... 
+train accuracy is 0.9998992646318122
+Checking validation accuracy ...
+val accuracy is  0.9449955641583999
+total counted in batch average is 123.625250501002
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_67.pt
+67100 0.0007317676464236733
+Starting epoch 174
+67200 0.0017678343720543166
+67300 3.1820030621165785e-06
+67400 0.016495886784980384
+67500 0.045475901179261216
+Starting epoch 175
+67600 0.014016306330225459
+67700 0.03099157084103183
+67800 0.0048631349680658634
+Starting epoch 176
+68000 0.00427095465591016
+Checking training accuracy ... 
+train accuracy is 0.9996574997481615
+Checking validation accuracy ...
+val accuracy is  0.9393499475764174
+total counted in batch average is 122.8876629889669
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_68.pt
+68100 0.0018501465333426858
+68200 0.2450275735523573
+Starting epoch 177
+68300 0.0048840353940137774
+68400 0.006055049155903749
+68500 0.0008466462809586872
+68600 0.000828795307658523
+Starting epoch 178
+68700 0.0010618440975430675
+68800 0.0010953881315376667
+68900 0.0016391096715836161
+69000 0.0010222764586397793
+Checking training accuracy ... 
+train accuracy is 0.9999597058527249
+Checking validation accuracy ...
+val accuracy is  0.9330591176707799
+total counted in batch average is 120.90380761523046
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_69.pt
+Starting epoch 179
+69100 0.00024199217116464668
+69200 0.000592530921994272
+69300 0.0033372903326819984
+69400 0.002078553004285415
+Starting epoch 180
+69500 0.0009255270422260309
+69600 4.0609766085469845e-05
+69700 0.03745005392195344
+69800 0.004025174773346403
+Starting epoch 181
+69900 0.00041303726025262777
+70000 0.36528902334000096
+Checking training accuracy ... 
+train accuracy is 0.8805882945502166
+Checking validation accuracy ...
+val accuracy is  0.8403903540608113
+total counted in batch average is 122.46840521564694
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_70.pt
+70100 0.041529981475528076
+70200 0.0816603136572986
+Starting epoch 182
+70300 0.06158420450441938
+70400 0.023664507052678214
+70500 0.005913098536556589
+70600 0.010574579485654429
+Starting epoch 183
+70700 0.00045080302411758754
+70800 0.0013251068691513645
+70900 0.0012210617741118335
+71000 0.003368721454688859
+Checking training accuracy ... 
+train accuracy is 0.9999194117054497
+Checking validation accuracy ...
+val accuracy is  0.9140253246229535
+total counted in batch average is 118.29158316633267
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_71.pt
+Starting epoch 184
+71100 0.0042031764722961105
+71200 0.0042617443179189494
+71300 0.001304230976464178
+Starting epoch 185
+71400 0.0013858793646205126
+71500 0.000283819740725556
+71600 0.0010836628155871152
+71700 0.00017544208896930202
+Starting epoch 186
+71800 0.04960909501297527
+71900 0.10068796455670352
+72000 0.031150115435778936
+Checking training accuracy ... 
+train accuracy is 0.9871461670192404
+Checking validation accuracy ...
+val accuracy is  0.8931365432696186
+total counted in batch average is 120.84252758274825
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_72.pt
+72100 0.07578666209108502
+Starting epoch 187
+72200 0.02277276673009747
+72300 0.01809311194385734
+72400 0.006821123041256407
+72500 0.027801799788105024
+Starting epoch 188
+72600 0.01231818832719643
+72700 0.007577035833508954
+72800 0.0915761209659194
+72900 0.038076234872112175
+Starting epoch 189
+73000 0.00476494579060905
+Checking training accuracy ... 
+train accuracy is 0.9994963231590611
+Checking validation accuracy ...
+val accuracy is  0.8966852165497218
+total counted in batch average is 118.95687061183551
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_73.pt
+73100 0.008618318939717215
+73200 0.012080991680901211
+73300 0.0027806852033802863
+Starting epoch 190
+73400 0.007500142705016921
+73500 0.0015654661011464666
+73600 0.0005542682021376311
+73700 0.004291430275982012
+Starting epoch 191
+73800 0.0006507674833607146
+73900 0.015123145978003532
+74000 0.0027835899263262977
+Checking training accuracy ... 
+train accuracy is 0.9995970585272489
+Checking validation accuracy ...
+val accuracy is  0.8956367448987822
+total counted in batch average is 121.1623246492986
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_74.pt
+74100 0.004891903555087287
+Starting epoch 192
+74200 0.00414572202698416
+74300 0.0030764570735252804
+74400 0.0011289688980255308
+Starting epoch 193
+74500 0.00042944865404575205
+74600 0.006801787421045522
+74700 0.00028265282694730056
+74800 0.0021326826607395177
+Starting epoch 194
+74900 0.00017139139175208928
+75000 0.00946752303213455
+Checking training accuracy ... 
+train accuracy is 0.9998992646318122
+Checking validation accuracy ...
+val accuracy is  0.92475199612872
+total counted in batch average is 122.85155466399198
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_75.pt
+75100 0.0006648079684603214
+75200 0.012910658660477182
+Starting epoch 195
+75300 0.0038776125404185
+75400 0.0004246712377122108
+75500 0.000968358766555173
+75600 0.005310291253271393
+Starting epoch 196
+75700 2.284302619195877e-05
+75800 0.11824299209171096
+75900 0.00898254757321522
+76000 0.000375192007686882
+Checking training accuracy ... 
+train accuracy is 0.9993149994963232
+Checking validation accuracy ...
+val accuracy is  0.9164448745866602
+total counted in batch average is 121.40581162324649
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_76.pt
+Starting epoch 197
+76100 0.002864392364598853
+76200 0.004220577865874561
+76300 0.0008712151255359313
+76400 0.0018755610873097395
+Starting epoch 198
+76500 0.0004743282940453952
+76600 0.0033820124148472995
+76700 0.0036279238679242857
+76800 0.002024028097426709
+Starting epoch 199
+76900 0.0003273761640593065
+77000 0.00021003801776876553
+Checking training accuracy ... 
+train accuracy is 0.9998388234108996
+Checking validation accuracy ...
+val accuracy is  0.9268489394305992
+total counted in batch average is 122.81544633901706
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_77.pt
+77100 0.00042247218830951616
+77200 0.004145002650465286
+Starting epoch 200
+77300 0.0099215053562368
+77400 9.213535915894578e-06
+77500 0.0029413367875817096
+Starting epoch 201
+77700 0.00369230800188184
+77800 0.0315971749370971
+77900 0.04255350777534989
+Starting epoch 202
+78000 0.07051694481676335
+Checking training accuracy ... 
+train accuracy is 0.9880930794802055
+Checking validation accuracy ...
+val accuracy is  0.8926526332768772
+total counted in batch average is 123.5085255767302
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_78.pt
+78100 0.008451985748301567
+78200 0.0027906238716051534
+78300 5.46493180905161e-05
+Starting epoch 203
+78400 0.001197381896956221
+78500 0.00048579629779323065
+78600 7.099436781626057e-05
+78700 0.0004156547309816849
+Starting epoch 204
+78800 2.4975037552318335e-05
+78900 1.1618805737589887e-06
+79000 0.004724415717574808
+Checking training accuracy ... 
+train accuracy is 0.9997179409690743
+Checking validation accuracy ...
+val accuracy is  0.9318493426889265
+total counted in batch average is 122.88276553106212
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_79.pt
+79100 0.0013496517020729903
+Starting epoch 205
+79200 0.0008656169475974451
+79300 0.00014493636316746273
+79400 0.001974153499616833
+79500 0.0028175486715531183
+Starting epoch 206
+79600 0.0021098660496249237
+79700 0.005415313133146088
+79800 0.0017785332425826618
+79900 0.001198485068411348
+Starting epoch 207
+80000 2.0177194502679076e-05
+Checking training accuracy ... 
+train accuracy is 0.9998388234108996
+Checking validation accuracy ...
+val accuracy is  0.922574401161384
+total counted in batch average is 123.78034102306921
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_80.pt
+80100 0.0001572912688540895
+80200 0.0038190115581622
+80300 0.000567642322761428
+Starting epoch 208
+80400 0.0006645273293817333
+80500 6.277903654416938e-07
+80600 0.0001718893029821289
+80700 0.0006247785170652453
+Starting epoch 209
+80800 0.0006193947731215354
+80900 0.0026918181019936873
+81000 0.0048042713184404204
+Checking training accuracy ... 
+train accuracy is 0.9998388234108996
+Checking validation accuracy ...
+val accuracy is  0.9212033228486168
+total counted in batch average is 124.42585170340682
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_81.pt
+Starting epoch 210
+81100 0.0008553610320280081
+81200 0.004076974784260351
+81300 0.001099677487512838
+81400 0.011165405465500539
+Starting epoch 211
+81500 0.03359021698426475
+81600 0.004997128851232811
+81700 0.0022677864373730006
+81800 0.002858052461832842
+Starting epoch 212
+81900 0.0013767360546963947
+82000 0.027112881780156143
+Checking training accuracy ... 
+train accuracy is 0.9987508814344717
+Checking validation accuracy ...
+val accuracy is  0.9336236793289782
+total counted in batch average is 123.01805416248746
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_82.pt
+82100 0.01378914211095719
+82200 0.00363189728320642
+Starting epoch 213
+82300 0.0035789551833910194
+82400 0.0014099276891058631
+82500 0.0006308995154946695
+82600 7.792327279924404e-05
+Starting epoch 214
+82700 0.0006224265111375127
+82800 0.02329383025075301
+82900 0.0034778527786494284
+83000 0.013285423106273684
+Checking training accuracy ... 
+train accuracy is 0.998871763876297
+Checking validation accuracy ...
+val accuracy is  0.9350754093072022
+total counted in batch average is 123.25551102204409
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_83.pt
+Starting epoch 215
+83100 0.001287888625307556
+83200 0.0005506958620268442
+83300 0.003788468896171573
+83400 0.0031529834028651083
+Starting epoch 216
+83500 0.0004860107130262481
+83600 1.62608427523403e-05
+83700 0.00036045334361691774
+83800 0.002879305731854419
+Starting epoch 217
+83900 0.0001978866024452486
+84000 0.0017432191303639044
+Checking training accuracy ... 
+train accuracy is 0.9998388234108996
+Checking validation accuracy ...
+val accuracy is  0.9274941527542544
+total counted in batch average is 124.18655967903712
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_84.pt
+84100 0.0008645397688241663
+Starting epoch 218
+84200 0.044056081070289625
+84300 0.007971442972055058
+84400 0.005309740973525905
+84500 0.001200469743625332
+Starting epoch 219
+84600 0.005608854775157526
+84700 0.0005175231646018963
+84800 0.0011348989109339236
+84900 0.0012365065999439472
+Starting epoch 220
+85000 0.0020281668300551337
+Checking training accuracy ... 
+train accuracy is 0.9997582351163493
+Checking validation accuracy ...
+val accuracy is  0.9165255262521171
+total counted in batch average is 122.90772316950853
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_85.pt
+85100 0.0017371002214078923
+85200 0.0026701871591530966
+85300 0.0010011701897908564
+Starting epoch 221
+85400 0.0038028099704740365
+85500 0.08462049239807286
+85600 0.01061729413570909
+85700 0.006057525999679555
+Starting epoch 222
+85800 0.0001540617856139559
+85900 0.013087513291223294
+86000 0.1081446789435148
+Checking training accuracy ... 
+train accuracy is 0.9949027903696988
+Checking validation accuracy ...
+val accuracy is  0.8628115170578272
+total counted in batch average is 122.46693386773548
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_86.pt
+86100 0.013637467838279571
+Starting epoch 223
+86200 0.003278064085136494
+86300 0.002931402853303772
+86400 0.0152803287247112
+86500 0.13408761143406578
+Starting epoch 224
+86600 0.061193597159432817
+86700 0.03450185535615123
+86800 0.05541589167107691
+86900 0.059754932701955206
+Starting epoch 225
+87000 0.08128707622210271
+Checking training accuracy ... 
+train accuracy is 0.9977435277525939
+Checking validation accuracy ...
+val accuracy is  0.9011210581498508
+total counted in batch average is 118.03410230692076
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_87.pt
+87100 0.047233960035251384
+87200 0.036730748951755515
+Starting epoch 226
+87400 0.09429299239692851
+87500 0.010690087504447632
+87600 0.0033930285510335055
+Starting epoch 227
+87700 0.009619010575646089
+87800 0.0037016866177631215
+87900 0.0010910592428227184
+88000 0.0028989311355164626
+Checking training accuracy ... 
+train accuracy is 0.9998992646318122
+Checking validation accuracy ...
+val accuracy is  0.9118477296556173
+total counted in batch average is 120.26452905811624
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_88.pt
+Starting epoch 228
+88100 0.0012603388555294615
+88200 3.3916591376292884e-05
+88300 0.0013226980305900248
+88400 1.2988336431141169e-06
+Starting epoch 229
+88500 0.02944165580721225
+88600 0.003835711326417236
+88700 0.004766897531437685
+88800 0.002334465457979027
+Starting epoch 230
+88900 0.00028281475463142527
+89000 0.0010353547700102605
+Checking training accuracy ... 
+train accuracy is 0.9998992646318122
+Checking validation accuracy ...
+val accuracy is  0.9137027179611259
+total counted in batch average is 122.06218655967903
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_89.pt
+89100 0.0011673733045629697
+89200 0.06155349470921754
+Starting epoch 231
+89300 0.004195087195676426
+89400 0.0023054365013146015
+89500 0.004335480558866511
+89600 0.000330323641864787
+Starting epoch 232
+89700 0.0006232663989133413
+89800 1.0984585522441081e-05
+89900 0.0004639864119835324
+90000 0.0036545569824716216
+Checking training accuracy ... 
+train accuracy is 0.999637352674524
+Checking validation accuracy ...
+val accuracy is  0.9133801112992983
+total counted in batch average is 122.44088176352706
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_90.pt
+Starting epoch 233
+90100 0.0005541696877714375
+90200 0.0014597325203651735
+90300 0.00035960756917654434
+90400 0.0028103145029786036
+Starting epoch 234
+90500 0.008135728498874697
+90600 0.006356295882999188
+90700 0.0031890226262597655
+Starting epoch 235
+90800 0.0016668767238618054
+90900 0.023214690488549544
+91000 0.0014929621596184938
+Checking training accuracy ... 
+train accuracy is 0.9993149994963232
+Checking validation accuracy ...
+val accuracy is  0.9260424227760303
+total counted in batch average is 123.72718154463391
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_91.pt
+91100 0.003833652912751526
+Starting epoch 236
+91200 0.0015874592813728784
+91300 0.04292460077909863
+91400 0.007305110937570889
+91500 0.01362869157970075
+Starting epoch 237
+91600 0.0018303735564162637
+91700 0.0001651191024035581
+91800 0.0014806494004566417
+91900 0.0050132495202999585
+Starting epoch 238
+92000 0.0007481429364129478
+Checking training accuracy ... 
+train accuracy is 0.9998589704845371
+Checking validation accuracy ...
+val accuracy is  0.9367690942817969
+total counted in batch average is 123.63490471414242
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_92.pt
+92100 0.0005101434033463082
+92200 0.009150863526176278
+92300 0.000915809956157444
+Starting epoch 239
+92400 7.127428609410513e-05
+92500 0.0013426818342986758
+92600 0.0063110174772643066
+92700 0.0008922274180307532
+Starting epoch 240
+92800 0.0003544125797272274
+92900 0.001305466328190039
+93000 0.0003118363797327545
+Checking training accuracy ... 
+train accuracy is 0.9999194117054497
+Checking validation accuracy ...
+val accuracy is  0.9349947576417453
+total counted in batch average is 124.64629258517034
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_93.pt
+93100 0.005556117995622518
+Starting epoch 241
+93200 0.005084084623051043
+93300 0.020784242486206937
+93400 0.0029766858094994776
+93500 0.006619491030665459
+Starting epoch 242
+93600 0.0023461990943303146
+93700 0.00047732377252552525
+93800 0.0005306737203667611
+Starting epoch 243
+93900 0.0018631928775843737
+94000 0.0008918801596846638
+Checking training accuracy ... 
+train accuracy is 0.9999798529263625
+Checking validation accuracy ...
+val accuracy is  0.9354786676344866
+total counted in batch average is 124.11634904714143
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_94.pt
+94100 0.00033431356568886184
+94200 7.54887978397667e-05
+Starting epoch 244
+94300 0.001803470082445579
+94400 0.00031171283885037204
+94500 0.0003046430000083911
+94600 0.0005407524046343171
+Starting epoch 245
+94700 0.0007393422994902154
+94800 0.008973338237639175
+94900 0.006959087380256139
+95000 0.0015017241885680766
+Checking training accuracy ... 
+train accuracy is 0.9999395587790874
+Checking validation accuracy ...
+val accuracy is  0.9335430276635213
+total counted in batch average is 125.08717434869739
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_95.pt
+Starting epoch 246
+95100 0.0037953934353246598
+95200 0.0010526661908383938
+95300 0.0001303709995502883
+95400 0.10274340847973323
+Starting epoch 247
+95500 0.020732730495671686
+95600 0.0006337700792670897
+95700 0.0024037762953591137
+95800 0.5300647489940085
+Starting epoch 248
+95900 0.06858367098032477
+96000 0.0013061617056868702
+Checking training accuracy ... 
+train accuracy is 0.9995366173063363
+Checking validation accuracy ...
+val accuracy is  0.9245906927978063
+total counted in batch average is 122.13340020060181
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_96.pt
+96100 0.004249913185603793
+96200 0.0025716634998701735
+Starting epoch 249
+96300 0.0016028853333854142
+96400 0.02849622751360262
+96500 0.048750864963673715
+96600 0.05532438281514418
+Starting epoch 250
+96700 0.006320603094314448
+96800 0.0545058877390382
+96900 0.010031367673809797
+Starting epoch 251
+97100 0.09789299303543038
+97200 0.00046158424766874263
+97300 0.006768219370877868
+Starting epoch 252
+97400 0.0010934907422820083
+97500 0.002803022741997696
+97600 0.00010506971930392295
+97700 0.002125993239205428
+Starting epoch 253
+97800 4.969073212830466e-05
+97900 0.00037624868685875334
+98000 0.00301474851330745
+Checking training accuracy ... 
+train accuracy is 0.9992545582754105
+Checking validation accuracy ...
+val accuracy is  0.9221711428340995
+total counted in batch average is 121.60601503759399
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_98.pt
+98100 0.0006206373071053517
+Starting epoch 254
+98200 0.0003449724999416093
+98300 0.000832383592169732
+98400 0.0013754497617629135
+98500 0.0006643016557066028
+Starting epoch 255
+98600 0.0021461395008716554
+98700 0.0016559920439526443
+98800 0.023416225298720263
+98900 0.042184920262799734
+Starting epoch 256
+99000 0.005348869223085184
+Checking training accuracy ... 
+train accuracy is 0.9963735267452403
+Checking validation accuracy ...
+val accuracy is  0.8985402048552302
+total counted in batch average is 123.02206619859578
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_99.pt
+99100 0.005057838524124705
+99200 0.0036698210849837065
+99300 0.0009821955100364444
+Starting epoch 257
+99400 0.0014735196832351804
+99500 0.022662081780577575
+99600 0.011683022587738259
+99700 0.0025679597970986413
+Starting epoch 258
+99800 4.426351431904063e-05
+99900 0.06425567840164369
+100000 0.09143023502509955
+Checking training accuracy ... 
+train accuracy is 0.9976830865316813
+Checking validation accuracy ...
+val accuracy is  0.9208000645213323
+total counted in batch average is 122.49098196392785
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_100.pt
+100100 0.14367539413187344
+Starting epoch 259
+100200 0.12672063692970262
+100300 0.0767836536618097
+100400 0.010327832095340739
+Starting epoch 260
+100500 0.029315148845453186
+100600 0.004795234221367508
+100700 0.0028326628954265585
+100800 0.003204039131922869
+Starting epoch 261
+100900 0.006109603111424225
+101000 0.015161822216233913
+Checking training accuracy ... 
+train accuracy is 0.9973808804271179
+Checking validation accuracy ...
+val accuracy is  0.9041051697717558
+total counted in batch average is 120.75827482447342
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_101.pt
+101100 0.0044675713606913805
+101200 0.02058082925847301
+Starting epoch 262
+101300 0.0027201875768321404
+101400 0.00116733038474627
+101500 0.003645292308027206
+101600 0.011387451381066888
+Starting epoch 263
+101700 0.00540058612992687
+101800 0.0014487732899338202
+101900 0.0009114436616441401
+102000 0.001072145148837398
+Checking training accuracy ... 
+train accuracy is 0.9997783821899869
+Checking validation accuracy ...
+val accuracy is  0.8843455117348173
+total counted in batch average is 121.90781563126252
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_102.pt
+Starting epoch 264
+102100 0.00290205186147769
+102200 0.00010467897906147328
+102300 0.00025850680950031626
+102400 0.0017513148539357703
+Starting epoch 265
+102500 5.253394356751428e-05
+102600 9.654585023924245e-05
+102700 0.00531462094547873
+102800 0.0014778135456087304
+Starting epoch 266
+102900 0.38612076961589925
+103000 0.028638519627598384
+Checking training accuracy ... 
+train accuracy is 0.9661327692152715
+Checking validation accuracy ...
+val accuracy is  0.8941850149205581
+total counted in batch average is 122.39117352056168
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_103.pt
+103100 0.03194188825683706
+103200 0.0070034157758916615
+Starting epoch 267
+103300 0.09224555305232403
+103400 0.02140691405542442
+103500 0.004085390676392139
+Starting epoch 268
+103600 0.001165470733496733
+103700 0.02111697043467091
+103800 0.1883971018708776
+103900 0.10134291851021544
+Starting epoch 269
+104000 0.31332371326034036
+Checking training accuracy ... 
+train accuracy is 0.9651254155333938
+Checking validation accuracy ...
+val accuracy is  0.8254697959512864
+total counted in batch average is 119.42527582748245
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_104.pt
+104100 0.07953418543397049
+104200 0.07935562657600848
+104300 0.05017150340202704
+Starting epoch 270
+104400 0.008994390229626639
+104500 0.0028412019771367624
+104600 0.005376626691738964
+104700 0.0029399862132287067
+Starting epoch 271
+104800 0.001813020166487742
+104900 0.0006873649319411546
+105000 0.0002544236379906151
+Checking training accuracy ... 
+train accuracy is 0.9998992646318122
+Checking validation accuracy ...
+val accuracy is  0.9145092346156948
+total counted in batch average is 115.57414829659318
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_105.pt
+105100 0.0320812416088964
+Starting epoch 272
+105200 0.021568369442117527
+105300 0.012381059567309349
+105400 0.003783156468222908
+105500 0.005979517625288266
+Starting epoch 273
+105600 0.08913282677134068
+105700 0.3211581819599905
+105800 0.17981298710875038
+105900 0.10387945339991873
+Starting epoch 274
+106000 0.3663712298858718
+Checking training accuracy ... 
+train accuracy is 0.9484033444142238
+Checking validation accuracy ...
+val accuracy is  0.8349060408097427
+total counted in batch average is 116.29087261785357
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_106.pt
+106100 0.06324163103521642
+106200 0.049877185805748354
+106300 0.03296721486229785
+Starting epoch 275
+106400 0.029927932311536835
+106500 0.027483341112774298
+106600 0.01185582608833137
+Starting epoch 276
+106800 0.06602832794723014
+106900 0.02227354094373453
+107000 0.07647853390562474
+Checking training accuracy ... 
+train accuracy is 0.9956079379470132
+Checking validation accuracy ...
+val accuracy is  0.8625695620614565
+total counted in batch average is 113.65931863727455
+Saving checkpoint to /viscam/u/joycj/dvr/film/chckpt_paths/appendix_biased_005_film_moma_attr_ans_cogen_biased_005_78_sampler_t01_107.pt
+Starting epoch 277
+107100 0.07925985923982978
+107200 0.014072540836822326
+107300 0.03749901039391403
+107400 0.0824405207936593
+Starting epoch 278
+107500 0.17978508532090018
