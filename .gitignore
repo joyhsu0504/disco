@@ -1,5 +1,6 @@
 # Data files
 data
+disco_scripts/batch_scripts/
 fin_scripts/batch_scripts/
 
 # Experiment files
