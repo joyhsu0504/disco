@@ -84,12 +84,7 @@ parser.add_argument('--load_timestep', default=False, action='store_true')
 parser.add_argument('--min_ans', default=False, action='store_true')
 parser.add_argument('--entropy_threshold', default=None, type=float)
 
-# Contrastive loss options
-parser.add_argument('--contrastive_loss', default='TaskVGenContrastive', type=str,
-    choices=['TaskVGenContrastive', 'QuestionVDiffQContrastive', 'JointContrastive'])
-parser.add_argument('--contrastive_margin', default=0.3, type=float)
-parser.add_argument('--contrastive_alpha', default=0.5, type=float)
-parser.add_argument('--contrastive_beta', default=0.0001, type=float)
+# Loss options
 parser.add_argument('--r1_regularization_gamma', default=10., type=float)
 
 # RNN options
@@ -212,7 +207,7 @@ def main(args):
         'feature_h5': args.train_features_h5,
         'vocab': vocab,
         'batch_size': args.batch_size,
-        'shuffle': True, # args.shuffle_train_data == 1
+        'shuffle': True,
         'question_families': question_families,
         'max_samples': args.num_train_samples,
         'num_workers': args.loader_num_workers,
@@ -298,7 +293,7 @@ def train_loop(args, train_loader, val_loader):
     running_loss = 0.0
     running_dis_loss = 0.0
     running_gen_loss = 0.0
-    running_contrastive_loss = 0.0
+    running_disco_loss = 0.0
     total_counted_all = []
             
     with open(args.vocab_json, 'r') as f:
@@ -308,7 +303,6 @@ def train_loop(args, train_loader, val_loader):
         answer_vocab = vocab_file['answer_token_to_idx']
         inverse_answer_vocab = dict((v, k) for k, v in answer_vocab.items())
         
-    # scenes = '/'.join(args.real_dataset_dir.split('/')[:-2]) + '/test/CLEVR_scenes.json'
     scenes = '/viscam/u/joycj/dvr/final_datasets/cogen_multi_object/test/CLEVR_scenes.json'
     print(scenes)
     with open(scenes, 'r') as f:
@@ -374,7 +368,7 @@ def train_loop(args, train_loader, val_loader):
                     ee_optimizer.step()
 
             ############################
-            # (3) Update network: contrastive loss
+            # (3) Update network: pseudo-label
             ###########################
             if not args.training_film:                   
                 if questions_var.size(0) != args.batch_size:
@@ -407,7 +401,7 @@ def train_loop(args, train_loader, val_loader):
 
                 _, max_pred_answers = recon_scores.data.max(1)
 
-                contrastive_loss = 0.0
+                disco_loss = 0.0
                 for idx in range(args.batch_size):
                     if entropies[idx] > args.entropy_threshold:
                         continue
@@ -425,12 +419,12 @@ def train_loop(args, train_loader, val_loader):
                         cas += correct_answer
                     
                     total_counted += 1
-                    contrastive_loss += loss_fn(torch.unsqueeze(recon_scores[idx], dim=0), torch.unsqueeze(max_pred_answers[idx], dim=0))
+                    disco_loss += loss_fn(torch.unsqueeze(recon_scores[idx], dim=0), torch.unsqueeze(max_pred_answers[idx], dim=0))
 
                 # For coverage
                 writer.add_scalar("Loss/total_counted", total_counted, t)
                 total_counted_all.append(total_counted)
-                writer.add_scalar("Loss/contrastive_loss", contrastive_loss, t)
+                writer.add_scalar("Loss/disco_loss", disco_loss, t)
 
                 if total_counted != 0:
                     if args.verbose_logging:
@@ -441,7 +435,7 @@ def train_loop(args, train_loader, val_loader):
 
                     pg_optimizer.zero_grad()
                     ee_optimizer.zero_grad()
-                    contrastive_loss.backward()
+                    disco_loss.backward()
                     pg_optimizer.step()
                     ee_optimizer.step()
 
@@ -486,23 +480,23 @@ def train_loop(args, train_loader, val_loader):
             except:
                 pass
             try:
-                running_contrastive_loss = contrastive_loss.item()
+                running_disco_loss = disco_loss.item()
             except:
                 pass
             if t % args.record_loss_every == 0:
                 avg_loss = running_loss / args.record_loss_every
-                avg_contrastive_loss = running_contrastive_loss / args.record_loss_every
+                avg_disco_loss = running_disco_loss / args.record_loss_every
                 print(t, avg_loss)
                 stats['train_losses'].append(avg_loss)
                 stats['train_losses_ts'].append(t)
                 if reward is not None:
                     stats['train_rewards'].append(reward)
                 running_loss = 0.0
-                running_contrastive_loss = 0.0
+                running_disco_loss = 0.0
                 
                 writer.add_scalar('Loss/avg_supervised_loss', avg_loss, int(t/args.record_loss_every))
                 if args.model_type == 'FiLMReconContrastiveIntermediate':
-                    writer.add_scalar("Loss/avg_contrastive_loss", avg_contrastive_loss, int(t/args.record_loss_every))
+                    writer.add_scalar("Loss/avg_disco_loss", avg_disco_loss, int(t/args.record_loss_every))
                 writer.flush()
             if t % args.checkpoint_every == 0:
                 num_checkpoints += 1

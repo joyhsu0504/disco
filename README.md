@@ -120,3 +120,5 @@ python disco_scripts/train_gan_sampler.py \
   --condition_method bn-film \
   --program_generator_parameter_efficient 1
 ```
+
+To pretrain FiLM and StyleGAN2, use ```--training_film``` and ```--training_gan``` respectively in the commands.
