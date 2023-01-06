@@ -270,7 +270,7 @@ def train_loop(args, train_loader, val_loader):
         t = saved_t
         epoch = saved_epoch
     
-    writer = SummaryWriter(log_dir='/viscam/u/joycj/dvr/film/metrics_logs/' + args.checkpoint_path.split('/')[-1].split('.')[0] + '/')
+    writer = SummaryWriter(log_dir='path_to_metrics_logs/' + args.checkpoint_path.split('/')[-1].split('.')[0] + '/')
     set_mode('train', [program_generator, execution_engine, baseline_model])
     print('train_loader has %d samples' % len(train_loader.dataset))
     print('val_loader has %d samples' % len(val_loader.dataset))
@@ -303,7 +303,7 @@ def train_loop(args, train_loader, val_loader):
         answer_vocab = vocab_file['answer_token_to_idx']
         inverse_answer_vocab = dict((v, k) for k, v in answer_vocab.items())
         
-    scenes = '/viscam/u/joycj/dvr/final_datasets/cogen_multi_object/test/CLEVR_scenes.json'
+    scenes = 'path_to_CLEVR_scenes.json'
     print(scenes)
     with open(scenes, 'r') as f:
         file = json.load(f)
@@ -446,7 +446,7 @@ def train_loop(args, train_loader, val_loader):
                     log_dict['true_answers'] = true_answers
                     log_dict['corrects'] = corrects
                     log_dict['values'] = values
-                    dlp = '/viscam/u/joycj/dvr/debug_logs/' + args.checkpoint_path.split('/')[-1].split('.')[0]
+                    dlp = 'path_to_debug_logs/' + args.checkpoint_path.split('/')[-1].split('.')[0]
                     pickle.dump(log_dict, open(dlp + '_' + str(t) + '.p', 'wb'))
                 
                 
