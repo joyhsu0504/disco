@@ -1,4 +1,4 @@
-# DisCo
+# DisCo: Improving Compositional Generalization in Visual Reasoning through <ins>Dis</ins>tribution <ins>Co</ins>verage
 
 This code is based on the FiLM: Visual Reasoning with a General Conditioning Layer [repository](https://github.com/ethanjperez/film). Please refer to the FiLM repository to process CLEVR data in the necessary format, and set the paths of ```train_questions, train_features, test_questions, test_features, vocab```.
 
