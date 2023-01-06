@@ -123,4 +123,4 @@ python disco_scripts/train_gan_sampler.py \
   --program_generator_parameter_efficient 1
 ```
 
-To pretrain FiLM and StyleGAN2, use ```--training_film``` and ```--training_gan``` respectively in the commands, with the StyleGAN2 checkpoint to be loaded in ```stylegan_checkpoint_path```. 
+To pretrain FiLM and StyleGAN2, use ```--training_film``` and ```--training_gan``` respectively in the commands. We use the StyleGAN [repository](https://github.com/NVlabs/stylegan3) as our StyleGAN2 backbone; after pretraining, the StyleGAN2 checkpoint should be set in ```stylegan_checkpoint_path```. 
