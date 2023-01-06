@@ -268,7 +268,7 @@ def train_loop(args, train_loader, val_loader):
         t = saved_t
         epoch = saved_epoch
     
-    writer = SummaryWriter(log_dir='/viscam/u/joycj/dvr/film/metrics_logs/' + args.checkpoint_path.split('/')[-1].split('.')[0] + '/')
+    writer = SummaryWriter(log_dir='path_to_metrics_logs/' + args.checkpoint_path.split('/')[-1].split('.')[0] + '/')
     set_mode('train', [program_generator, execution_engine, baseline_model])
     print('train_loader has %d samples' % len(train_loader.dataset))
     print('val_loader has %d samples' % len(val_loader.dataset))
@@ -489,7 +489,7 @@ def train_loop(args, train_loader, val_loader):
                 gen_out = gen(gaussian_noise, None).detach()
 
                 plt.imshow(np.transpose(vutils.make_grid(gen_out.to('cuda')[:64], padding=2, normalize=True).cpu(),(1,2,0)))
-                save_dir = '/viscam/u/joycj/dvr/film/recon_logs/' + args.checkpoint_path.split('/')[-1].split('.')[0] + '/'
+                save_dir = 'path_to_recon_logs/' + args.checkpoint_path.split('/')[-1].split('.')[0] + '/'
                 if not os.path.exists(save_dir):
                     os.makedirs(save_dir)
                 plt.savefig(save_dir + str(int(t / args.checkpoint_every)).zfill(4) + '.png')
