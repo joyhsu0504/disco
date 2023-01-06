@@ -14,10 +14,6 @@ https://github.com/NVlabs/stylegan2/blob/master/training/networks_stylegan2.py""
 import os
 import sys
 
-sys.path.append('/viscam/u/joycj/dvr/stylegan3/')
-sys.path.append('/viscam/u/joycj/dvr/stylegan3/torch_utils')
-sys.path.append('/viscam/u/joycj/dvr/stylegan3/dnnlib')
-
 import numpy as np
 import torch
 from torch_utils import misc
