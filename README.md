@@ -2,11 +2,15 @@
 
 ![demonstrative figure](framework_figure.png)
 
-## Setup and Training
+[Joy Hsu](https://web.stanford.edu/~joycj/), [Jiayuan Mao](https://jiayuanm.com), [Jiajun Wu](https://jiajunwu.com)
 
-This code is based on the FiLM: Visual Reasoning with a General Conditioning Layer [repository](https://github.com/ethanjperez/film). Please refer to the FiLM repository to process CLEVR data in the necessary format, and set the paths of ```train_questions, train_features, test_questions, test_features, vocab```.
+In Transactions on Machine Learning Research (TMLR)
 
-Our framework, DisCo, can be found in the disco_scripts folder.  The path to your current run's checkpoints should be set in ```checkpoint_path```. Please first train a base FiLM model, and load in its checkpoint in ```film_checkpoint_path```. We release scripts to run DisCo with two image proposal strategies, direct sampling and GAN generation sampling; for both stategies, the path to the directory of unlabelled images should be at ```real_dataset_dir```.
+## Setup and Commands
+
+This code is based on the FiLM: Visual Reasoning with a General Conditioning Layer [repository](https://github.com/ethanjperez/film) as the base VQA model. Please refer to the FiLM repository to install prerequisites and process CLEVR data in the necessary format, then set the paths of ```train_questions, train_features, test_questions, test_features, vocab```.
+
+Our framework, DisCo, can be found in the disco_scripts folder.  The path to your current run's checkpoints should be set in ```checkpoint_path```. Please first train a base FiLM model with the ```--training_film``` flag, and load in its checkpoint in ```film_checkpoint_path```. We release scripts to run DisCo with two image proposal strategies, direct sampling and GAN generation sampling; for both stategies, the path to the directory of unlabelled images should be at ```real_dataset_dir```.
 
 To run DisCo with direct sampling, run:
 
@@ -127,4 +131,4 @@ python disco_scripts/train_gan_sampler.py \
   --program_generator_parameter_efficient 1
 ```
 
-To pretrain FiLM and StyleGAN2, use ```--training_film``` and ```--training_gan``` respectively in the commands. We use the StyleGAN [repository](https://github.com/NVlabs/stylegan3) as our StyleGAN2 backbone; after pretraining, the StyleGAN2 checkpoint should be set in ```stylegan_checkpoint_path```. 
+To pretrain StyleGAN2, use the ```--training_gan``` flag. We use the StyleGAN [repository](https://github.com/NVlabs/stylegan3) as our StyleGAN2 backbone; after pretraining, the StyleGAN2 checkpoint should be set in ```stylegan_checkpoint_path```. 
