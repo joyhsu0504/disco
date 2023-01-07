@@ -1,5 +1,9 @@
 # DisCo: Improving Compositional Generalization in Visual Reasoning through <ins>Dis</ins>tribution <ins>Co</ins>verage
 
+![demonstrative figure](framework_figure.png)
+
+## Setup and Training
+
 This code is based on the FiLM: Visual Reasoning with a General Conditioning Layer [repository](https://github.com/ethanjperez/film). Please refer to the FiLM repository to process CLEVR data in the necessary format, and set the paths of ```train_questions, train_features, test_questions, test_features, vocab```.
 
 Our framework, DisCo, can be found in the disco_scripts folder.  The path to your current run's checkpoints should be set in ```checkpoint_path```. Please first train a base FiLM model, and load in its checkpoint in ```film_checkpoint_path```. We release scripts to run DisCo with two image proposal strategies, direct sampling and GAN generation sampling; for both stategies, the path to the directory of unlabelled images should be at ```real_dataset_dir```.
