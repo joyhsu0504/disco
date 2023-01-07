@@ -8,7 +8,7 @@ In Transactions on Machine Learning Research (TMLR)
 
 ## Setup and Commands
 
-This code is based on the FiLM: Visual Reasoning with a General Conditioning Layer [repository](https://github.com/ethanjperez/film) as the base VQA model. Please refer to the FiLM repository to install prerequisites and process CLEVR data in the necessary format, then set the paths of ```train_questions, train_features, test_questions, test_features, vocab```.
+This code is based on the FiLM: Visual Reasoning with a General Conditioning Layer [repository](https://github.com/ethanjperez/film), with FiLM as the base VQA model. Please refer to the FiLM repository to install prerequisites and process CLEVR data in the necessary format, then set the paths of ```train_questions, train_features, test_questions, test_features, vocab```.
 
 Our framework, DisCo, can be found in the disco_scripts folder.  The path to your current run's checkpoints should be set in ```checkpoint_path```. Please first train a base FiLM model with the ```--training_film``` flag, and load in its checkpoint in ```film_checkpoint_path```. We release scripts to run DisCo with two image proposal strategies, direct sampling and GAN generation sampling; for both stategies, the path to the directory of unlabelled images should be at ```real_dataset_dir```.
 
